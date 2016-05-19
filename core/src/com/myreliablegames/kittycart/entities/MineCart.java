@@ -2,11 +2,14 @@ package com.myreliablegames.kittycart.entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.TimeUtils;
+import com.myreliablegames.kittycart.Level;
 import com.myreliablegames.kittycart.util.Assets;
 import com.myreliablegames.kittycart.util.Constants;
-
-import java.util.List;
 
 /**
  * Created by Joe on 5/17/2016.
@@ -16,35 +19,115 @@ public class MineCart {
     private static final String TAG = "MineCart";
     // Position of minecart is the front corner of texture.
     private Vector2 position;
+    private Vector2 prevPosition;
     private Vector2 velocity;
+    private boolean wantsToJump;
+    private JumpState state;
+    private long jumpStartTime;
+    private Level level;
 
-    public MineCart() {
-        this.position = new Vector2(Constants.WORLD_WIDTH / 5, Constants.WORLD_HEIGHT / 2);
+    public MineCart(Level level) {
+        this.position = new Vector2(Constants.WORLD_WIDTH / 4, Constants.WORLD_HEIGHT / 2);
         velocity = new Vector2(0, 0);
+        state = JumpState.FALLING;
+        prevPosition = new Vector2(position);
+        this.level = level;
     }
 
     public void render(SpriteBatch batch) {
-
         batch.draw(Assets.getInstance().mineCartAssets.minecart, position.x - Constants.MINECART_WIDTH, position.y);
-        Gdx.app.log(TAG, "Position X: " + position.x + " Position Y: " + position.y);
     }
 
-    public void update(float delta, List<Track> trackList) {
+    private float altitiudeBuffer = 5;
+
+    public void update(float delta, Array<Track> trackList) {
+        prevPosition.set(position);
+
         // Gravity
         velocity.y -= Constants.GRAVITY;
 
+        if (state == JumpState.JUMPING) {
+            continueJump();
+        } else {
 
+            for (Track track : trackList) {
+                if (track.getBoundingRectangle().overlaps(getBoundingRectangle()) &&
+                        state != JumpState.JUMPING) {
 
-        for (Track track : trackList) {
-            Vector2 contactPoint = track.contactsAtPosition(position);
-            if (contactPoint != null) {
-                if (position.y < contactPoint.y) {
-                    position.y = contactPoint.y;
+                    float contactHeight;
+                    if (track.getTrackType() == Track.TrackType.DOWN) {
+                        contactHeight = track.contactHeight(new Vector2(position.x - Constants.MINECART_WIDTH, position.y));
+                    } else {
+                        contactHeight = track.contactHeight(position);
+                    }
+                    if (contactHeight > 0) {
+                        if (position.y < contactHeight) {
+                            position.y = contactHeight;
+                            velocity.y = 0;
+                            state = JumpState.GROUNDED;
+
+                            if (wantsToJump) {
+                                startJump();
+                                wantsToJump = false;
+                            }
+                        }
+                    }
                 }
             }
         }
 
         position.mulAdd(velocity, delta);
+
+
+        wantsToJump = false;
+
+
+        // Reset if falling off.
+        if (position.y < 0) {
+            position.y = Constants.WORLD_HEIGHT;
+            level.resetScore();
+        }
+    }
+
+    private Rectangle getBoundingRectangle() {
+
+        // Hit detection only works around the minecart wheels.
+        return new Rectangle(position.x - Constants.MINECART_WIDTH, position.y, Constants.MINECART_WIDTH, Constants.MINECART_WHEEL_HEIGHT);
+    }
+
+    public void jump() {
+        wantsToJump = true;
+    }
+
+    private void startJump() {
+        state = JumpState.JUMPING;
+        jumpStartTime = TimeUtils.nanoTime();
+        continueJump();
+    }
+
+    private void continueJump() {
+        if (state == JumpState.JUMPING) {
+            if (TimeUtils.timeSinceNanos(jumpStartTime) * MathUtils.nanoToSec < Constants.JUMP_DURATION) {
+                velocity.y = Constants.JUMP_SPEED;
+                Gdx.app.log(TAG, "Jumping!");
+            } else {
+                endJump();
+            }
+        }
+    }
+
+    private void endJump() {
+        if (state == JumpState.JUMPING) {
+            state = JumpState.FALLING;
+        }
+    }
+
+    public Vector2 getPosition() {
+        return position;
+    }
+
+    enum JumpState {
+        JUMPING, FALLING, GROUNDED
     }
 
 }

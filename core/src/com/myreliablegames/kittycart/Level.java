@@ -1,18 +1,15 @@
 package com.myreliablegames.kittycart;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.DelayedRemovalArray;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.myreliablegames.kittycart.entities.MineCart;
 import com.myreliablegames.kittycart.entities.Track;
 import com.myreliablegames.kittycart.util.Constants;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.myreliablegames.kittycart.util.FollowCamera;
 
 /**
  * Created by Joe on 5/17/2016.
@@ -22,39 +19,39 @@ public class Level {
     public static final String TAG = "Level";
 
     private Viewport viewport;
-    private Camera camera;
-
+    private FollowCamera camera;
     private MineCart mineCart;
-    private List<Track> tracks;
+    private com.myreliablegames.kittycart.Tracks.TrackLayer trackLayer;
+    private HUD hud;
+    private int score;
 
     public Level() {
         viewport = new ExtendViewport(Constants.WORLD_WIDTH, Constants.WORLD_HEIGHT);
-        mineCart = new MineCart();
-        camera = new OrthographicCamera();
-        camera.position.set(Constants.WORLD_WIDTH / 2, Constants.WORLD_HEIGHT / 2, 0);
-        viewport.setCamera(camera);
-        camera.update();
+        mineCart = new MineCart(this);
 
-        tracks = new ArrayList<Track>();
 
-        for (int i = 0; i < 6; i++) {
+        camera = new FollowCamera(new OrthographicCamera(Constants.WORLD_WIDTH / 2, Constants.WORLD_HEIGHT / 2));
+        hud = new HUD(camera.getCamera());
+        viewport.setCamera(camera.getCamera());
+        camera.update(mineCart);
 
-            if ( i < 5) {
-                tracks.add(new Track(Track.TrackType.STRAIGHT, new Vector2(50 + (i * 120), 200), -80));
-            } else {
-                tracks.add(new Track(Track.TrackType.UP, new Vector2(50 + (i * 120), 200), -80));
-            }
-        }
+        Controller controller = new Controller(mineCart);
+        Gdx.input.setInputProcessor(controller);
+
+       trackLayer = new com.myreliablegames.kittycart.Tracks.TrackLayer();
+
+    }
+
+    public void dispose() {
+        hud.dispose();
     }
 
     public void update(float delta) {
+        score++;
 
-        for (Track track : tracks) {
-            track.update(delta);
-        }
-
-        mineCart.update(delta, tracks);
-        camera.update();
+        trackLayer.update(delta);
+        mineCart.update(delta, trackLayer.getTracksInPlay());
+        camera.update(mineCart);
     }
 
     public void render(SpriteBatch batch) {
@@ -66,14 +63,16 @@ public class Level {
 
         Gdx.app.log(TAG, "Batch Begin");
 
-        for (Track track : tracks) {
-            track.render(batch);
-        }
-
+       trackLayer.render(batch);
         mineCart.render(batch);
+        hud.render(batch, score);
 
         batch.end();
 
+    }
+
+    public void resetScore() {
+        score = 0;
     }
 
     public void resize(int width, int height) {

@@ -1,6 +1,5 @@
 package com.myreliablegames.kittycart.entities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -17,6 +16,7 @@ public class Track {
     private Vector2 position;
     private Vector2 velocity;
 
+
     public Track(TrackType trackType, Vector2 position, float speed) {
         this.trackType = trackType;
         this.position = position;
@@ -25,10 +25,10 @@ public class Track {
 
     public void update(float delta) {
         position.mulAdd(velocity, delta);
+    }
 
-        if (position.x < 0) {
-            position.x = 700;
-        }
+    public boolean movedOutOfBounds() {
+        return (position.x < 0 - Constants.TRACK_WIDTH);
     }
 
     public void render(SpriteBatch batch) {
@@ -42,39 +42,46 @@ public class Track {
         }
     }
 
+    public Rectangle getBoundingRectangle() {
+
+        return new Rectangle(position.x, position.y, Constants.TRACK_WIDTH, Constants.TRACK_WIDTH);
+
+    }
+
+    public boolean equals(Track track) {
+        if (position.equals(track.position)) {
+            return true;
+        }
+        return false;
+    }
+
     public TrackType getTrackType() {
         return trackType;
     }
 
-    // Returns the point where the MineCart contacts the track. Returns null if no contact.
-    public Vector2 contactsAtPosition(Vector2 position) {
+    // Returns the height where the MineCart contacts the track. Returns -1 if no contact.
+    public float contactHeight(Vector2 position) {
 
-        boolean withinXBounds = (position.x > this.position.x && position.x < this.position.x + Constants.TRACK_WIDTH);
+        if (trackType == TrackType.UP) {
+            float contactPoint = this.position.y + climbOffset(this.position, position);
+            // Gdx.app.log(TAG, "Contact up at " + Float.toString(contactPoint));
 
-        boolean withinYBounds = (position.y < this.position.y + Constants.TRACK_WIDTH &&
-                                 position.y > this.position.y);
-
-        Gdx.app.log(TAG, "in X bounds: " + withinXBounds + " in Y bounds: " + withinYBounds);
-
-
-        if (withinXBounds && withinYBounds) {
-            Gdx.app.log(TAG, "Contact");
-
-            if (trackType == TrackType.UP) {
-                Vector2 contactPoint = new Vector2(position.x, this.position.y + Constants.STRAIGHT_TRACK_THICKNESS + climbOffset(this.position, position));
-                Gdx.app.log(TAG, "Contact up at " + Float.toString(contactPoint.x) + ", " + Float.toString(contactPoint.y));
-                return contactPoint;
-            } else if (trackType == TrackType.STRAIGHT) {
-                Vector2 contactPoint=  new Vector2(position.x, this.position.y + Constants.STRAIGHT_TRACK_THICKNESS);
-                Gdx.app.log(TAG, "Contact straight at " + Float.toString(contactPoint.x) + ", " + Float.toString(contactPoint.y));
-                return contactPoint;
-            } else if (trackType == TrackType.DOWN) {
-                Vector2 contactPoint = new Vector2(position.x, this.position.y + Constants.STRAIGHT_TRACK_THICKNESS - climbOffset(this.position, position));
-                Gdx.app.log(TAG, "Contact down at " + Float.toString(contactPoint.x) + ", " + Float.toString(contactPoint.y));
-                return contactPoint;
+            if (contactPoint > this.position.y + Constants.TRACK_WIDTH) {
+                contactPoint = this.position.y + Constants.TRACK_WIDTH;
             }
+            return contactPoint;
+        } else if (trackType == TrackType.STRAIGHT) {
+            float contactPoint = this.position.y + Constants.TRACK_WIDTH;
+            // Gdx.app.log(TAG, "Contact straight at " + Float.toString(contactPoint));
+            return contactPoint;
+        } else if (trackType == TrackType.DOWN) {
+            float contactPoint = this.position.y - climbOffset(this.position, new Vector2(position.x - Constants.MINECART_WIDTH, position.y));
+           // float contactPoint = this.position.y - climbOffset(this.position, position);
+            //  Gdx.app.log(TAG, "Contact down at " + Float.toString(contactPoint));
+            return contactPoint;
         }
-        return null;
+
+        return -1;
     }
 
     private float climbOffset(Vector2 trackPosition, Vector2 mineCartPosition) {
@@ -82,9 +89,13 @@ public class Track {
         float percentRemaining = (trackPosition.x + Constants.TRACK_WIDTH - mineCartPosition.x) / Constants.TRACK_WIDTH;
 
         float offset = (Constants.TRACK_WIDTH - Constants.STRAIGHT_TRACK_THICKNESS) * (1f - percentRemaining);
-        Gdx.app.log(TAG, "Offset " + Float.toString(offset));
+        //Gdx.app.log(TAG, "Offset " + Float.toString(offset));
         return offset;
 
+    }
+
+    public Vector2 getPosition() {
+        return position;
     }
 
     public enum TrackType {

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.myreliablegames.kittycart.util.Assets;
@@ -14,6 +15,7 @@ import com.myreliablegames.kittycart.util.Assets;
 public class GameScreen extends ScreenAdapter {
     SpriteBatch batch;
     Level level;
+    FPSLogger logger;
 
     @Override
     public void show() {
@@ -21,11 +23,14 @@ public class GameScreen extends ScreenAdapter {
         Assets.getInstance().init(assetManager);
         batch = new SpriteBatch();
         level = new Level();
+        logger = new FPSLogger();
     }
 
     @Override
     public void dispose() {
         Assets.getInstance().dispose();
+        level.dispose();
+        batch.dispose();
     }
 
     @Override
@@ -36,6 +41,8 @@ public class GameScreen extends ScreenAdapter {
 
         level.update(delta);
         level.render(batch);
+        logger.log();
+
     }
 
     @Override

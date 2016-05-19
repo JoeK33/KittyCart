@@ -34,9 +34,9 @@ public class Assets implements Disposable, AssetErrorListener {
         // Load Assets
         assetManager.load("minecart.png", Texture.class);
 
-        assetManager.load("downtrack.png", Texture.class);
-        assetManager.load("straighttrack.png", Texture.class);
-        assetManager.load("uptrack.png", Texture.class);
+        assetManager.load("downtracks.png", Texture.class);
+        assetManager.load("straighttracks.png", Texture.class);
+        assetManager.load("uptracks.png", Texture.class);
 
         assetManager.finishLoading();
 
@@ -48,8 +48,10 @@ public class Assets implements Disposable, AssetErrorListener {
 
         public final Texture minecart;
 
+
         public MineCartAssets() {
             minecart = assetManager.get("minecart.png");
+
 
         }
     }
@@ -60,9 +62,9 @@ public class Assets implements Disposable, AssetErrorListener {
         public final Texture straightTrack;
 
         public TrackAssets() {
-            upTrack = assetManager.get("uptrack.png");
-            downTrack = assetManager.get("downtrack.png");
-            straightTrack = assetManager.get("straighttrack.png");
+            upTrack = assetManager.get("uptracks.png");
+            downTrack = assetManager.get("downtracks.png");
+            straightTrack = assetManager.get("straighttracks.png");
         }
     }
 

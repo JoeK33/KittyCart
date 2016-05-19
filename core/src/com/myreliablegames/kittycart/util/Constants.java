@@ -14,7 +14,7 @@ public class Constants {
     public static final float MINECART_WHEEL_HEIGHT = 14;
     public static final float TRACK_WIDTH = 64;
     public static final float JUMP_SPEED = 350;
-    public static final float TRACK_SPEED = -350;
+    public static final float TRACK_SPEED = -310;
     public static final float JUMP_DURATION = .25f;
     public static final float STRAIGHT_TRACK_THICKNESS = 10;
     public static final float SCORE_MARGIN = 10;

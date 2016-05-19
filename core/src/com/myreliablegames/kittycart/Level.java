@@ -61,9 +61,7 @@ public class Level {
         batch.setProjectionMatrix(viewport.getCamera().combined);
         batch.begin();
 
-        Gdx.app.log(TAG, "Batch Begin");
-
-       trackLayer.render(batch);
+        trackLayer.render(batch);
         mineCart.render(batch);
         hud.render(batch, score);
 

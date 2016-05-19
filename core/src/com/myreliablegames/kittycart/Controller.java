@@ -1,5 +1,6 @@
 package com.myreliablegames.kittycart;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -23,6 +24,7 @@ public class Controller implements InputProcessor {
     public boolean keyUp(int keycode) {
         if (keycode == Input.Keys.SPACE) {
             mineCart.jump();
+            Gdx.app.log("Controller ", "Jump pressed");
         }
         return false;
     }

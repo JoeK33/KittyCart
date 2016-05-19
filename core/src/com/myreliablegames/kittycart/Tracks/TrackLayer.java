@@ -49,7 +49,7 @@ public class TrackLayer {
         }
         tracksInPlay.end();
 
-        Gdx.app.log("TrackLayer", "Tracks in play: " + tracksInPlay.size);
+      //  Gdx.app.log("TrackLayer", "Tracks in play: " + tracksInPlay.size);
 
     }
 

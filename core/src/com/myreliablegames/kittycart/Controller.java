@@ -3,7 +3,8 @@ package com.myreliablegames.kittycart;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.myreliablegames.kittycart.entities.MineCart;
 
 /**
@@ -11,10 +12,13 @@ import com.myreliablegames.kittycart.entities.MineCart;
  */
 public class Controller implements InputProcessor {
     MineCart mineCart;
+    private long touchTime;
 
-    public Controller (MineCart mineCart) {
+    public Controller(MineCart mineCart) {
         this.mineCart = mineCart;
+        touchTime = 0;
     }
+
     @Override
     public boolean keyDown(int keycode) {
         return false;
@@ -24,7 +28,8 @@ public class Controller implements InputProcessor {
     public boolean keyUp(int keycode) {
         if (keycode == Input.Keys.SPACE) {
             mineCart.jump();
-            Gdx.app.log("Controller ", "Jump pressed");
+        } else if (keycode == Input.Keys.L) {
+            mineCart.longLump();
         }
         return false;
     }
@@ -36,14 +41,26 @@ public class Controller implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        mineCart.jump();
+        touchTime = TimeUtils.nanoTime();
         return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        // Touch to jump, hold and release to long jump.
+        if (timeSince(touchTime) < .3f) {
+            mineCart.jump();
+        } else {
+            mineCart.longLump();
+        }
 
         return false;
+    }
+
+    private float timeSince(long touchTime) {
+
+        float time = (TimeUtils.nanoTime() - touchTime) * MathUtils.nanoToSec;
+        return time;
     }
 
     @Override

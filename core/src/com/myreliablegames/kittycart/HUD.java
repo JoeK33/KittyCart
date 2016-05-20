@@ -15,6 +15,8 @@ public class HUD {
     private final Camera camera;
     private BitmapFont font;
     private final String SCORE;
+    private final String DISTANCE;
+    private final String COINS;
 
     public HUD(Camera camera) {
         this.camera = camera;
@@ -22,12 +24,16 @@ public class HUD {
         font = new BitmapFont();
 
         SCORE = "Score: ";
+        DISTANCE = "Distance: ";
+        COINS ="Coins: ";
         font.getData().scale(1);
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
     }
 
-    public void render(SpriteBatch batch, int score) {
+    public void render(SpriteBatch batch, int score, int tracksTraveled, int coins) {
         font.draw(batch, SCORE + score, Constants.SCORE_MARGIN, camera.position.y - Constants.SCORE_MARGIN + (Constants.WORLD_HEIGHT / 2));
+        font.draw(batch, DISTANCE + tracksTraveled, Constants.WORLD_WIDTH / 2, camera.position.y - Constants.SCORE_MARGIN + (Constants.WORLD_HEIGHT / 2));
+        font.draw(batch, COINS + coins, (Constants.WORLD_WIDTH / 4) * 3, camera.position.y - Constants.SCORE_MARGIN + (Constants.WORLD_HEIGHT / 2));
     }
 
     public void dispose() {

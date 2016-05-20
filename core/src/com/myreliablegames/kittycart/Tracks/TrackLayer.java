@@ -16,12 +16,14 @@ public class TrackLayer {
     private TrackSectionFactory factory;
     private DelayedRemovalArray<Track> tracksInPlay;
     private int tracksWide;
+    private int tracksTraveled;
 
     public TrackLayer() {
         factory = new TrackSectionFactory();
         tracksInPlay = new DelayedRemovalArray<Track>();
         tracksInPlay.addAll(factory.makeStraightSection(new Vector2(0, Constants.WORLD_HEIGHT / 6)).getTracks());
         tracksWide = (int) (Constants.WORLD_WIDTH * 1.5f / Constants.TRACK_WIDTH);
+        tracksTraveled = 0;
 
     }
 
@@ -35,7 +37,7 @@ public class TrackLayer {
             Track lastTrack = tracksInPlay.get(tracksInPlay.size - 1);
             Vector2 trackAddPosition = new Vector2(lastTrack.getPosition());
             trackAddPosition.x += Constants.TRACK_WIDTH;
-            tracksInPlay.addAll(factory.makeEasySection(trackAddPosition).getTracks());
+            tracksInPlay.addAll(factory.makeRandomStepSection(trackAddPosition).getTracks());
         }
 
 
@@ -45,6 +47,7 @@ public class TrackLayer {
             // Remove tracks that have passed out of play.
             if (track.movedOutOfBounds()) {
                 tracksInPlay.removeValue(track, true);
+                tracksTraveled++;
             }
         }
         tracksInPlay.end();
@@ -53,12 +56,20 @@ public class TrackLayer {
 
     }
 
+    public int getTracksTraveled() {
+        return tracksTraveled;
+    }
+
     public void render(SpriteBatch batch) {
 
         for (Track track : tracksInPlay) {
         track.render(batch);
         }
 
+    }
+
+    public void resetDistance() {
+        tracksTraveled = 0;
     }
 
     public Array<Track> getTracksInPlay() {

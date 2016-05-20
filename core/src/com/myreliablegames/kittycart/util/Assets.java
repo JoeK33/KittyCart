@@ -18,6 +18,7 @@ public class Assets implements Disposable, AssetErrorListener {
     private AssetManager assetManager;
     public MineCartAssets mineCartAssets;
     public TrackAssets trackAssets;
+    public PickUpAssets pickUpAssets;
 
     private Assets() {
     }
@@ -33,26 +34,29 @@ public class Assets implements Disposable, AssetErrorListener {
         this.assetManager = assetManager;
         // Load Assets
         assetManager.load("minecart.png", Texture.class);
+        assetManager.load("spark.png", Texture.class);
 
         assetManager.load("downtracks.png", Texture.class);
         assetManager.load("straighttracks.png", Texture.class);
         assetManager.load("uptracks.png", Texture.class);
 
+        assetManager.load("coin.png", Texture.class);
+
         assetManager.finishLoading();
 
         mineCartAssets = new MineCartAssets();
         trackAssets = new TrackAssets();
+        pickUpAssets = new PickUpAssets();
     }
 
     public class MineCartAssets {
-
         public final Texture minecart;
-
+        public final Texture spark;
 
         public MineCartAssets() {
             minecart = assetManager.get("minecart.png");
-
-
+            spark = assetManager.get("spark.png");
+            minecart.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         }
     }
 
@@ -65,6 +69,14 @@ public class Assets implements Disposable, AssetErrorListener {
             upTrack = assetManager.get("uptracks.png");
             downTrack = assetManager.get("downtracks.png");
             straightTrack = assetManager.get("straighttracks.png");
+        }
+    }
+
+    public class PickUpAssets {
+        public final Texture coin;
+
+        public PickUpAssets() {
+            coin = assetManager.get("coin.png");
         }
     }
 

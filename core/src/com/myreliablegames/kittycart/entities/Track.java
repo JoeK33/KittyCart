@@ -44,7 +44,11 @@ public class Track {
 
     public Rectangle getBoundingRectangle() {
 
-        return new Rectangle(position.x, position.y, Constants.TRACK_WIDTH, Constants.TRACK_WIDTH);
+        if (trackType == TrackType.STRAIGHT) {
+            return new Rectangle(position.x, position.y + Constants.TRACK_WIDTH - Constants.STRAIGHT_TRACK_THICKNESS, Constants.TRACK_WIDTH, Constants.TRACK_WIDTH);
+        } else {
+            return new Rectangle(position.x, position.y + Constants.STRAIGHT_TRACK_THICKNESS, Constants.TRACK_WIDTH, Constants.TRACK_WIDTH - Constants.STRAIGHT_TRACK_THICKNESS);
+        }
 
     }
 
@@ -63,7 +67,7 @@ public class Track {
     public float contactHeight(Vector2 position) {
 
         if (trackType == TrackType.UP) {
-            float contactPoint = this.position.y + climbOffset(this.position, position);
+            float contactPoint = this.position.y + climbOffset(this.position, position) + Constants.STRAIGHT_TRACK_THICKNESS;
             // Gdx.app.log(TAG, "Contact up at " + Float.toString(contactPoint));
 
             if (contactPoint > this.position.y + Constants.TRACK_WIDTH) {

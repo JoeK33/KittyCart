@@ -1,5 +1,6 @@
 package com.myreliablegames.kittycart.entities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
@@ -13,8 +14,6 @@ import com.myreliablegames.kittycart.Level;
 import com.myreliablegames.kittycart.util.Assets;
 import com.myreliablegames.kittycart.util.Constants;
 
-import java.util.ArrayList;
-
 /**
  * Created by Joe on 5/17/2016.
  */
@@ -22,7 +21,6 @@ public class MineCart {
 
     private static final String TAG = "MineCart";
     // Position of minecart is the front corner of texture.
-    private Sprite sprite;
     private Vector2 position;
     private Vector2 prevPosition;
     private Vector2 velocity;
@@ -44,36 +42,35 @@ public class MineCart {
         moveState = MoveState.DESCENDING;
         wantsToLongJump = false;
         sparkEmitter = new SparkEmitter(this);
-        sprite = new Sprite(Assets.getInstance().mineCartAssets.minecart);
     }
 
     public void render(SpriteBatch batch) {
-        // batch.draw(Assets.getInstance().mineCartAssets.minecart, position.x - Constants.MINECART_WIDTH, position.y);
+         batch.draw(Assets.getInstance().mineCartAssets.minecart, position.x - Constants.MINECART_WIDTH, position.y);
 
-/*
-        if (moveState == MoveState.CLIMBING) {
-            sprite.setRotation(45);
-        } else if (moveState == MoveState.DESCENDING) {
-            sprite.setRotation(-45);
-        } else {
-            sprite.setRotation(0);
-        }
-        */
-        sprite.draw(batch);
         sparkEmitter.render(batch);
     }
 
 
     public void update(float delta, Array<Track> trackList, CoinHandler coinHandler) {
 
-        setPreviousPosition(position);
-
+        prevPosition.set(position);
         position.mulAdd(velocity, delta);
-        sprite.setPosition(position.x - Constants.MINECART_WIDTH, position.y);
         sparkEmitter.update(delta);
 
         // Gravity
         velocity.y -= Constants.GRAVITY;
+
+        float buffer = 1f;
+        if (prevPosition.y + buffer < position.y) {
+            moveState = MoveState.CLIMBING;
+        } else if (prevPosition.y > position.y + buffer) {
+            moveState = MoveState.DESCENDING;
+            if (jumpState == JumpState.GROUNDED) {
+                jumpState = JumpState.FALLING;
+            }
+        } else {
+            moveState = MoveState.LEVEL;
+        }
 
         continueJump();
 
@@ -89,25 +86,28 @@ public class MineCart {
                     if (position.y < contactHeight) {
                         velocity.y = 0;
                         position.y = contactHeight;
+                        if (track.getTrackType() == Track.TrackType.DOWN) {
+                            velocity.y = Constants.TRACK_SPEED;
+
+                        } else if (track.getTrackType() == Track.TrackType.UP) {
+                            velocity.y = -(Constants.TRACK_SPEED - (2 *Constants.GRAVITY));
+                        }
+
                         if (moveState == MoveState.DESCENDING) {
                             sparkEmitter.spark();
-                            //Gdx.app.log(TAG, "Sparking!");
-                            velocity.y += Constants.TRACK_SPEED;
-                        } else if (track.getTrackType() == Track.TrackType.UP) {
-                            velocity.mulAdd(new Vector2(0, Constants.GRAVITY), 1);
                         }
 
                         jumpState = JumpState.GROUNDED;
-
-                        if (wantsToJump) {
-                            startJump(wantsToLongJump);
-                            wantsToJump = false;
-                            wantsToLongJump = false;
-                        }
-
-
                     }
                 }
+            }
+        }
+
+        if (jumpState == JumpState.GROUNDED) {
+            if (wantsToJump) {
+                startJump(wantsToLongJump);
+                wantsToJump = false;
+                wantsToLongJump = false;
             }
         }
 
@@ -126,32 +126,6 @@ public class MineCart {
             level.reset();
             velocity.y = 0;
         }
-
-        // Determine how the cart is moving.
-        float positionBuffer = 2;
-
-        if (prevPosition.y + positionBuffer < position.y) {
-            moveState = MoveState.CLIMBING;
-        } else if (prevPosition.y > position.y + positionBuffer) {
-            moveState = MoveState.DESCENDING;
-        } else {
-            moveState = MoveState.LEVEL;
-        }
-    }
-
-    // The previous position is the position 10 frames ago.
-    private ArrayList<Vector2> previousPositions = new ArrayList<Vector2>();
-
-    private void setPreviousPosition(Vector2 position) {
-
-        if (previousPositions.size() < 10) {
-            previousPositions.add(position);
-        } else {
-            previousPositions.remove(0);
-            previousPositions.add(position);
-        }
-
-        prevPosition.set(previousPositions.get(0));
     }
 
     private Rectangle getWheelBoundingRectangle() {
@@ -173,7 +147,7 @@ public class MineCart {
         Timer jumpTimer = new Timer();
 
         // If player does not jump in try time, cancel the request to jump.
-        float jumpTryTime = .25f;
+        float jumpTryTime = .10f;
         jumpTimer.scheduleTask(new Timer.Task() {
             @Override
             public void run() {
@@ -203,6 +177,7 @@ public class MineCart {
     }
 
     private void startJump(boolean longJump) {
+        if (jumpState == JumpState.GROUNDED)
         if (longJump) {
             jumpState = JumpState.LONG_JUMPING;
         } else {

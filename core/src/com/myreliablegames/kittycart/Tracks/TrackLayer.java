@@ -1,11 +1,11 @@
 package com.myreliablegames.kittycart.Tracks;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.DelayedRemovalArray;
 import com.myreliablegames.kittycart.entities.Track;
+import com.myreliablegames.kittycart.util.Assets;
 import com.myreliablegames.kittycart.util.Constants;
 
 /**
@@ -17,6 +17,7 @@ public class TrackLayer {
     private DelayedRemovalArray<Track> tracksInPlay;
     private int tracksWide;
     private int tracksTraveled;
+    private int supportsHigh;
 
     public TrackLayer() {
         factory = new TrackSectionFactory();
@@ -25,9 +26,11 @@ public class TrackLayer {
         tracksWide = (int) (Constants.WORLD_WIDTH * 1.5f / Constants.TRACK_WIDTH);
         tracksTraveled = 0;
 
+        supportsHigh = (int) (Constants.WORLD_HEIGHT / Assets.getInstance().trackAssets.supports.getHeight()) * 2;
+
     }
 
-    public void update(float delta){
+    public void update(float delta) {
 
         tracksInPlay.begin();
 
@@ -52,7 +55,7 @@ public class TrackLayer {
         }
         tracksInPlay.end();
 
-      //  Gdx.app.log("TrackLayer", "Tracks in play: " + tracksInPlay.size);
+        //  Gdx.app.log("TrackLayer", "Tracks in play: " + tracksInPlay.size);
 
     }
 
@@ -63,10 +66,19 @@ public class TrackLayer {
     public void render(SpriteBatch batch) {
 
         for (Track track : tracksInPlay) {
-        track.render(batch);
-        }
+            track.render(batch);
 
+            for (int i = 0; i < supportsHigh; i++) {
+
+                batch.draw(Assets.getInstance().trackAssets.supports,
+                        track.getPosition().x,
+                        track.getPosition().y - Constants.TRACK_WIDTH - (i * Constants.TRACK_WIDTH));
+
+
+            }
+        }
     }
+
 
     public void resetDistance() {
         tracksTraveled = 0;

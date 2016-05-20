@@ -19,6 +19,7 @@ public class Assets implements Disposable, AssetErrorListener {
     public MineCartAssets mineCartAssets;
     public TrackAssets trackAssets;
     public PickUpAssets pickUpAssets;
+    public BackGroundAssets backGroundAssets;
 
     private Assets() {
     }
@@ -39,14 +40,19 @@ public class Assets implements Disposable, AssetErrorListener {
         assetManager.load("downtracks.png", Texture.class);
         assetManager.load("straighttracks.png", Texture.class);
         assetManager.load("uptracks.png", Texture.class);
+        assetManager.load("supports.png", Texture.class);
 
         assetManager.load("coin.png", Texture.class);
+
+        assetManager.load("bottomtile.png", Texture.class);
+        assetManager.load("middletile.png", Texture.class);
 
         assetManager.finishLoading();
 
         mineCartAssets = new MineCartAssets();
         trackAssets = new TrackAssets();
         pickUpAssets = new PickUpAssets();
+        backGroundAssets = new BackGroundAssets();
     }
 
     public class MineCartAssets {
@@ -64,11 +70,13 @@ public class Assets implements Disposable, AssetErrorListener {
         public final Texture upTrack;
         public final Texture downTrack;
         public final Texture straightTrack;
+        public final Texture supports;
 
         public TrackAssets() {
             upTrack = assetManager.get("uptracks.png");
             downTrack = assetManager.get("downtracks.png");
             straightTrack = assetManager.get("straighttracks.png");
+            supports = assetManager.get("supports.png");
         }
     }
 
@@ -77,6 +85,16 @@ public class Assets implements Disposable, AssetErrorListener {
 
         public PickUpAssets() {
             coin = assetManager.get("coin.png");
+        }
+    }
+
+    public class BackGroundAssets {
+        public final Texture bottomBackGroundTile;
+        public final Texture middleBackGroundTile;
+
+        public BackGroundAssets() {
+            bottomBackGroundTile = assetManager.get("bottomtile.png");
+            middleBackGroundTile = assetManager.get("middletile.png");
         }
     }
 

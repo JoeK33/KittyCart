@@ -26,6 +26,7 @@ public class Level {
     private int score;
     private CoinHandler coinHandler;
     private int coinsCollected = 0;
+    private BackGround backGround;
 
     public Level() {
         viewport = new ExtendViewport(Constants.WORLD_WIDTH, Constants.WORLD_HEIGHT);
@@ -41,6 +42,7 @@ public class Level {
 
         trackLayer = new TrackLayer();
         coinHandler = new CoinHandler(trackLayer);
+        backGround = new BackGround();
 
     }
 
@@ -51,7 +53,7 @@ public class Level {
     public void update(float delta) {
         score++;
         coinHandler.update(delta);
-
+        backGround.update(delta);
         trackLayer.update(delta);
         mineCart.update(delta, trackLayer.getTracksInPlay(), coinHandler);
         camera.update(mineCart);
@@ -73,7 +75,7 @@ public class Level {
 
         batch.setProjectionMatrix(viewport.getCamera().combined);
         batch.begin();
-
+        backGround.render(batch);
         trackLayer.render(batch);
         coinHandler.render(batch);
         mineCart.render(batch);

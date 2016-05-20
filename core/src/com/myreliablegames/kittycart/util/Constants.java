@@ -7,9 +7,9 @@ import com.badlogic.gdx.math.MathUtils;
  */
 public class Constants {
 
-    public static final float GRAVITY = 50f;
+    public static final float GRAVITY = 45f;
 
-    public static final float WORLD_HEIGHT = 700;
+    public static final float WORLD_HEIGHT = 600;
     public static final float WORLD_WIDTH = 1200;
 
     public static final float MINECART_WIDTH = 64;

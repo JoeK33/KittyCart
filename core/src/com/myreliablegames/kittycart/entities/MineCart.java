@@ -1,7 +1,5 @@
 package com.myreliablegames.kittycart.entities;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -24,12 +22,18 @@ public class MineCart {
     private Vector2 position;
     private Vector2 prevPosition;
     private Vector2 velocity;
+    private final double BOB_SPEED = 15;
+    private final double ROTATION_SPEED = 300;
     private boolean wantsToJump;
     private JumpState jumpState;
     private MoveState moveState;
     private long jumpStartTime;
     private Level level;
     private boolean wantsToLongJump;
+    private double wiggleDegrees;
+    private float bob_offset;
+    private float rotationAngle;
+    private final float MAX_ROTATION = 30;
 
     private SparkEmitter sparkEmitter;
 
@@ -42,16 +46,53 @@ public class MineCart {
         moveState = MoveState.DESCENDING;
         wantsToLongJump = false;
         sparkEmitter = new SparkEmitter(this);
+        wiggleDegrees = 0;
+        bob_offset = 0;
+        rotationAngle = 0;
     }
 
     public void render(SpriteBatch batch) {
-         batch.draw(Assets.getInstance().mineCartAssets.minecart, position.x - Constants.MINECART_WIDTH, position.y);
+        bob_offset = 0;
+
+        if (jumpState == JumpState.GROUNDED) {
+            bob_offset = (float) (Math.cos(wiggleDegrees) * 2) - (Constants.STRAIGHT_TRACK_THICKNESS / 2);
+        }
+
+        batch.draw(
+                Assets.getInstance().mineCartAssets.minecart,
+                position.x - Constants.MINECART_WIDTH,
+                position.y + bob_offset,
+                Constants.MINECART_WIDTH / 2,
+                Constants.MINECART_WIDTH / 2,
+                Constants.MINECART_WIDTH,
+                Constants.MINECART_WIDTH,
+                1f,
+                1f,
+                rotationAngle,
+                1,
+                1,
+                64,
+                64,
+                false,
+                false
+
+                );
 
         sparkEmitter.render(batch);
     }
 
 
     public void update(float delta, Array<Track> trackList, CoinHandler coinHandler) {
+        wiggleDegrees += (BOB_SPEED * delta);
+        updateRotationAngle(delta);
+
+        if (velocity.y < -Constants.SPEED_LIMIT) {
+            velocity.y = -Constants.SPEED_LIMIT;
+        }
+
+        if (wiggleDegrees > 360) {
+            wiggleDegrees = 0;
+        }
 
         prevPosition.set(position);
         position.mulAdd(velocity, delta);
@@ -90,7 +131,9 @@ public class MineCart {
                             velocity.y = Constants.TRACK_SPEED;
 
                         } else if (track.getTrackType() == Track.TrackType.UP) {
-                            velocity.y = -(Constants.TRACK_SPEED - (2 *Constants.GRAVITY));
+                            velocity.y = -(Constants.TRACK_SPEED - (Constants.GRAVITY));
+                            moveState = MoveState.CLIMBING;
+
                         }
 
                         if (moveState == MoveState.DESCENDING) {
@@ -125,6 +168,16 @@ public class MineCart {
             position.y = Constants.WORLD_HEIGHT;
             level.reset();
             velocity.y = 0;
+        }
+    }
+
+    private void updateRotationAngle(float delta) {
+        if(moveState == MoveState.DESCENDING && rotationAngle > - MAX_ROTATION) {
+            rotationAngle -= ROTATION_SPEED * delta;
+        } else if(moveState == MoveState.CLIMBING && rotationAngle <  MAX_ROTATION) {
+            rotationAngle += ROTATION_SPEED * delta;
+        } else if (moveState == MoveState.LEVEL && jumpState == JumpState.GROUNDED){
+            rotationAngle = 0;
         }
     }
 
@@ -216,7 +269,13 @@ public class MineCart {
     }
 
     public Vector2 getSparkPosition() {
-        return new Vector2(position.x - Constants.MINECART_WIDTH, position.y);
+
+        if (jumpState == JumpState.GROUNDED) {
+            return new Vector2(position.x - Constants.MINECART_WIDTH + Constants.MINECART_EDGE_TO_WHEEL_SIZE - Constants.SPARK_WIDTH, position.y + bob_offset);
+        } else {
+
+         return new Vector2(position.x - Constants.MINECART_WIDTH + Constants.MINECART_EDGE_TO_WHEEL_SIZE - Constants.SPARK_WIDTH, position.y);
+        }
     }
 
     enum JumpState {

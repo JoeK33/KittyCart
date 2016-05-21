@@ -18,6 +18,7 @@ public class TrackLayer {
     private int tracksWide;
     private int tracksTraveled;
     private int supportsHigh;
+    private final int SUPPORT_HEIGHT;
 
     public TrackLayer() {
         factory = new TrackSectionFactory();
@@ -25,8 +26,9 @@ public class TrackLayer {
         tracksInPlay.addAll(factory.makeStraightSection(new Vector2(0, Constants.WORLD_HEIGHT / 6)).getTracks());
         tracksWide = (int) (Constants.WORLD_WIDTH * 1.5f / Constants.TRACK_WIDTH);
         tracksTraveled = 0;
+        SUPPORT_HEIGHT = Assets.getInstance().trackAssets.supports.getHeight();
 
-        supportsHigh = (int) (Constants.WORLD_HEIGHT / Assets.getInstance().trackAssets.supports.getHeight()) * 2;
+        supportsHigh = (int) (Constants.WORLD_HEIGHT / SUPPORT_HEIGHT) * 2;
 
     }
 
@@ -40,7 +42,18 @@ public class TrackLayer {
             Track lastTrack = tracksInPlay.get(tracksInPlay.size - 1);
             Vector2 trackAddPosition = new Vector2(lastTrack.getPosition());
             trackAddPosition.x += Constants.TRACK_WIDTH;
-            tracksInPlay.addAll(factory.makeRandomStepSection(trackAddPosition).getTracks());
+
+            if (tracksTraveled < 100) {
+                tracksInPlay.addAll(factory.makeRandomJaggedNoGapShiftSection(trackAddPosition).getTracks());
+            } else if (tracksTraveled < 200) {
+                tracksInPlay.addAll(factory.makeRandomSection(trackAddPosition).getTracks());
+            }else if (tracksTraveled < 300) {
+                tracksInPlay.addAll(factory.makeRandomGapSection(trackAddPosition).getTracks());
+            }else if (tracksTraveled < 400)  {
+                tracksInPlay.addAll(factory.makeRandomGapShiftSection(trackAddPosition).getTracks());
+            }else {
+                tracksInPlay.addAll(factory.makeRandomNoGapShiftSection(trackAddPosition).getTracks());
+            }
         }
 
 
@@ -67,14 +80,11 @@ public class TrackLayer {
 
         for (Track track : tracksInPlay) {
             track.render(batch);
-
+            // Place track supports
             for (int i = 0; i < supportsHigh; i++) {
-
                 batch.draw(Assets.getInstance().trackAssets.supports,
                         track.getPosition().x,
-                        track.getPosition().y - Constants.TRACK_WIDTH - (i * Constants.TRACK_WIDTH));
-
-
+                        track.getPosition().y - SUPPORT_HEIGHT - (i * SUPPORT_HEIGHT));
             }
         }
     }
@@ -84,7 +94,15 @@ public class TrackLayer {
         tracksTraveled = 0;
     }
 
+    // Don't send out tracks that are out of the bounds of the game world.
     public Array<Track> getTracksInPlay() {
-        return tracksInPlay;
+        if (tracksInPlay.size > tracksWide) {
+            Array<Track> tempTracks = new Array<Track>(tracksInPlay);
+            tempTracks.removeRange(tracksWide, tempTracks.size - 1);
+            return tempTracks;
+        } else {
+            return tracksInPlay;
+        }
+
     }
 }

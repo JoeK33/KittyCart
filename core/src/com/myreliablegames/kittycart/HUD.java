@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.myreliablegames.kittycart.util.Constants;
 
+import java.text.NumberFormat;
+
 /**
  * Created by Joe on 5/18/2016.
  */
@@ -31,9 +33,9 @@ public class HUD {
     }
 
     public void render(SpriteBatch batch, int score, int tracksTraveled, int coins) {
-        font.draw(batch, SCORE + score, Constants.SCORE_MARGIN, camera.position.y - Constants.SCORE_MARGIN + (Constants.WORLD_HEIGHT / 2));
-        font.draw(batch, DISTANCE + tracksTraveled, Constants.WORLD_WIDTH / 2, camera.position.y - Constants.SCORE_MARGIN + (Constants.WORLD_HEIGHT / 2));
-        font.draw(batch, COINS + coins, (Constants.WORLD_WIDTH / 4) * 3, camera.position.y - Constants.SCORE_MARGIN + (Constants.WORLD_HEIGHT / 2));
+        font.draw(batch, SCORE + NumberFormat.getIntegerInstance().format(score), Constants.SCORE_MARGIN, camera.position.y - Constants.SCORE_MARGIN + (Constants.WORLD_HEIGHT / 2));
+        font.draw(batch, DISTANCE + NumberFormat.getIntegerInstance().format(tracksTraveled), Constants.WORLD_WIDTH / 2, camera.position.y - Constants.SCORE_MARGIN + (Constants.WORLD_HEIGHT / 2));
+        font.draw(batch, COINS + NumberFormat.getIntegerInstance().format(coins), (Constants.WORLD_WIDTH / 4) * 3, camera.position.y - Constants.SCORE_MARGIN + (Constants.WORLD_HEIGHT / 2));
     }
 
     public void dispose() {

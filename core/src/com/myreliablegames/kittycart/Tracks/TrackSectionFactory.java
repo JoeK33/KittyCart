@@ -5,6 +5,8 @@ import com.myreliablegames.kittycart.util.Constants;
 
 /**
  * Created by Joe on 5/18/2016.
+ * Builds bits of track to play in various ways.  Sections must begin and end with an actual track piece, no gaps or shifts. Easiest
+ * way is to cap them with a single straight piece.
  */
 public class TrackSectionFactory {
 
@@ -102,18 +104,64 @@ public class TrackSectionFactory {
     }
 
 
-    public TrackSection makeRandomStepSection(Vector2 position) {
+    public TrackSection makeRandomSection(Vector2 position) {
         builder = new TrackBuilder(position, Constants.TRACK_SPEED);
-
         builder = addRandomConnectedSection(builder, 5);
-        builder = addRandomShiftSection(builder);
+        builder = addRandomShiftSection(builder, 3);
         builder = addRandomConnectedSection(builder, 5);
-        builder = addRandomGapSection(builder);
+        builder = addRandomGapSection(builder, 3);
         builder.addStraight(1);
-
 
         return builder.build();
     }
+
+    public TrackSection makeRandomGapSection(Vector2 position) {
+        builder = new TrackBuilder(position, Constants.TRACK_SPEED);
+        builder = addRandomConnectedSection(builder, 3);
+        builder.addStraight(2);
+        builder = addRandomGapSection(builder, 4);
+        builder = addRandomConnectedSection(builder, 3);
+        builder.addStraight(2);
+        builder = addRandomGapSection(builder, 4);
+        builder.addStraight(1);
+
+        return builder.build();
+    }
+
+    public TrackSection makeRandomNoGapShiftSection(Vector2 position) {
+        builder = new TrackBuilder(position, Constants.TRACK_SPEED);
+        builder = addRandomConnectedSection(builder, 3);
+        builder = addRandomShiftSection(builder, 4);
+        builder = addRandomConnectedSection(builder, 3);
+        builder = addRandomShiftSection(builder, 4);
+        builder.addStraight(1);
+        return builder.build();
+    }
+
+    public TrackSection makeRandomGapShiftSection(Vector2 position) {
+        builder = new TrackBuilder(position, Constants.TRACK_SPEED);
+        builder = addRandomConnectedSection(builder, 2);
+        builder.addStraight(1);
+        builder = addRandomShiftSection(builder, 3);
+        builder = addRandomGapSection(builder, 3);
+        builder = addRandomConnectedSection(builder, 2);
+        builder.addStraight(1);
+        builder = addRandomShiftSection(builder, 3);
+        builder = addRandomGapSection(builder, 3);
+        builder.addStraight(1);
+        return builder.build();
+    }
+
+    public TrackSection makeRandomJaggedNoGapShiftSection(Vector2 position) {
+        builder = new TrackBuilder(position, Constants.TRACK_SPEED);
+        builder = addRandomConnectedSection(builder, 2);
+        builder = addRandomShiftSection(builder, 4);
+        builder = addRandomConnectedSection(builder, 2);
+        builder = addRandomShiftSection(builder, 4);
+        builder.addStraight(1);
+        return builder.build();
+    }
+
 
     private TrackBuilder addRandomConnectedSection(TrackBuilder builder, int length) {
         int connectedOptions = 3;
@@ -146,14 +194,14 @@ public class TrackSectionFactory {
     }
 
     // Randomly shifts track up to 3 shifts in either direction
-    private TrackBuilder addRandomShiftSection(TrackBuilder builder) {
+    private TrackBuilder addRandomShiftSection(TrackBuilder builder, int maxShifts) {
         int shiftOptions = 2;
 
         // Randomly choose a shift direction
         int choice = (int) ((Math.random() * shiftOptions) + 1);
 
         // generate random lengths of track
-        int howMany = (int) ((Math.random() * 3) + 1);
+        int howMany = (int) ((Math.random() * maxShifts) + 1);
 
         switch (choice) {
             case 0:
@@ -170,10 +218,10 @@ public class TrackSectionFactory {
     }
 
     // Randomly gaps track up to 4 units, minimum of 2 units
-    private TrackBuilder addRandomGapSection(TrackBuilder builder) {
+    private TrackBuilder addRandomGapSection(TrackBuilder builder, int maxGaps) {
         int minimumGap = 2;
         // generate random length of gap
-        int howMany = (int) ((Math.random() * 3) + minimumGap);
+        int howMany = (int) ((Math.random() * maxGaps) + minimumGap);
         builder.addGap(howMany);
 
         return builder;

@@ -12,9 +12,9 @@ public class BackGround {
     private int numTilesWide;
     private float tileSize;
     private float scrollingPoint;
-    private final float SCROLL_SPEED = 1;
+    private final float SCROLL_SPEED = 10;
     private final int NUMBER_OF_BOTTOM_TILE_ROWS = 3;
-    private final int NUMBER_OF_MIDDLE_TILE_ROWS = 3;
+    private final int NUMBER_OF_MIDDLE_TILE_ROWS = 2;
     private final int NUMBER_OF_TOP_TILE_ROWS = 3;
 
     public BackGround() {
@@ -47,7 +47,7 @@ public class BackGround {
     }
 
     public void update(float delta) {
-        scrollingPoint -= SCROLL_SPEED;
+        scrollingPoint -= SCROLL_SPEED * delta;
 
         if (scrollingPoint < -tileSize) {
             scrollingPoint = 0;

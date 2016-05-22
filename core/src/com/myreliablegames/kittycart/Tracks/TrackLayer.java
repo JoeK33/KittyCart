@@ -23,7 +23,7 @@ public class TrackLayer {
     public TrackLayer() {
         factory = new TrackSectionFactory();
         tracksInPlay = new DelayedRemovalArray<Track>();
-        tracksInPlay.addAll(factory.makeMountainSection(new Vector2(0, Constants.WORLD_HEIGHT / 6)).getTracks());
+        tracksInPlay.addAll(factory.makeStraightSection(new Vector2(0, Constants.WORLD_HEIGHT / 6)).getTracks());
         tracksWide = (int) (Constants.WORLD_WIDTH * 1.5f / Constants.TRACK_WIDTH);
         tracksTraveled = 0;
         SUPPORT_HEIGHT = Assets.getInstance().trackAssets.supports.getHeight();

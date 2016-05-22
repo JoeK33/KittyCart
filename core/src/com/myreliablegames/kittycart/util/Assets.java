@@ -5,6 +5,9 @@ import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetErrorListener;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 
 /**
@@ -39,13 +42,14 @@ public class Assets implements Disposable, AssetErrorListener {
         assetManager.load("minecartback.png", Texture.class);
         assetManager.load("spark.png", Texture.class);
         assetManager.load("catincart.png", Texture.class);
+        assetManager.load("catframes.png", Texture.class);
 
         assetManager.load("downtracks.png", Texture.class);
         assetManager.load("straighttracks.png", Texture.class);
         assetManager.load("uptracks.png", Texture.class);
         assetManager.load("supports.png", Texture.class);
 
-        assetManager.load("coin.png", Texture.class);
+        assetManager.load("coinframes.png", Texture.class);
 
         assetManager.load("bottomtile.png", Texture.class);
         assetManager.load("middletile.png", Texture.class);
@@ -64,6 +68,7 @@ public class Assets implements Disposable, AssetErrorListener {
         public final Texture minecartBack;
         public final Texture spark;
         public final Texture cat;
+        public final Animation animatedCat;
 
         public MineCartAssets() {
             minecart = assetManager.get("minecart.png");
@@ -71,7 +76,24 @@ public class Assets implements Disposable, AssetErrorListener {
             minecartBack = assetManager.get("minecartback.png");
             spark = assetManager.get("spark.png");
             cat = assetManager.get("catincart.png");
-            minecart.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
+            int FRAME_COLS = 5;
+            int FRAME_ROWS = 1;
+
+
+            Texture catSheet = assetManager.get("catframes.png");
+            TextureRegion[][] tmp = TextureRegion.split(catSheet, catSheet.getWidth()/FRAME_COLS, catSheet.getHeight()/FRAME_ROWS);
+            TextureRegion[] catFrames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
+            int index = 0;
+            for (int i = 0; i < FRAME_ROWS; i++) {
+                for (int j = 0; j < FRAME_COLS; j++) {
+                    catFrames[index++] = tmp[i][j];
+                }
+            }
+
+            animatedCat = new Animation(.33f, catFrames);
+            animatedCat.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
+
         }
     }
 
@@ -90,10 +112,27 @@ public class Assets implements Disposable, AssetErrorListener {
     }
 
     public class PickUpAssets {
-        public final Texture coin;
+
+        public final Animation coinAnimation;
 
         public PickUpAssets() {
-            coin = assetManager.get("coin.png");
+
+            int FRAME_COLS = 4;
+            int FRAME_ROWS = 1;
+
+
+            Texture coinSheet = assetManager.get("coinframes.png");
+            TextureRegion[][] tmp = TextureRegion.split(coinSheet, coinSheet.getWidth()/FRAME_COLS,coinSheet.getHeight()/FRAME_ROWS);
+            TextureRegion[] coinFrames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
+            int index = 0;
+            for (int i = 0; i < FRAME_ROWS; i++) {
+                for (int j = 0; j < FRAME_COLS; j++) {
+                    coinFrames[index++] = tmp[i][j];
+                }
+            }
+
+            coinAnimation = new Animation(.20f, coinFrames);
+            coinAnimation.setPlayMode(Animation.PlayMode.LOOP);
         }
     }
 

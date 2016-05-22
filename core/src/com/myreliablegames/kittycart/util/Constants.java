@@ -15,14 +15,14 @@ public class Constants {
 
     public static final float MINECART_WIDTH = 64;
     public static final float MINECART_WHEEL_HEIGHT = 14;
-    public static final float MINECART_EDGE_TO_WHEEL_SIZE = 20;
+    public static final float MINECART_EDGE_TO_WHEEL_SIZE = 13;
     public static final float SPARK_WIDTH = Assets.getInstance().mineCartAssets.spark.getWidth();
     public static final float TRACK_WIDTH = 64;
     public static final float JUMP_SPEED = 500;
     public static final int MAX_COINS_IN_PLAY = 5;
     public static final float TRACK_SPEED = -310;
-    public static final float JUMP_DURATION = .25f;
-    public static final float STRAIGHT_TRACK_THICKNESS = 29;
+    public static final float JUMP_DURATION = .30f;
+    public static final float STRAIGHT_TRACK_THICKNESS = 30;
     public static final float SCORE_MARGIN = 10;
     public static final float COIN_SIZE = 32;
     public static final int COIN_SCORE_VALUE = 100;

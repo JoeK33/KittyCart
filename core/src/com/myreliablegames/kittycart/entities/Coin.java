@@ -12,10 +12,12 @@ import com.myreliablegames.kittycart.util.Constants;
 public class Coin {
     private Vector2 position;
     private Vector2 velocity;
+    private float stateTime;
 
     public Coin(Vector2 position) {
         this.position = position;
         velocity = new Vector2(Constants.TRACK_SPEED, 0);
+        stateTime = 0;
 
     }
 
@@ -23,6 +25,7 @@ public class Coin {
 
     public void update(float delta) {
        position.mulAdd(velocity, delta);
+        stateTime += delta;
     }
 
     public Vector2 getPosition() {
@@ -30,7 +33,7 @@ public class Coin {
     }
 
     public void render(SpriteBatch batch) {
-        batch.draw(Assets.getInstance().pickUpAssets.coin, position.x, position.y);
+        batch.draw(Assets.getInstance().pickUpAssets.coinAnimation.getKeyFrame(stateTime), position.x, position.y);
     }
 
     public boolean isColliding(Rectangle rectangle) {

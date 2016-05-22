@@ -35,7 +35,10 @@ public class Assets implements Disposable, AssetErrorListener {
         this.assetManager = assetManager;
         // Load Assets
         assetManager.load("minecart.png", Texture.class);
+        assetManager.load("minecartfront.png", Texture.class);
+        assetManager.load("minecartback.png", Texture.class);
         assetManager.load("spark.png", Texture.class);
+        assetManager.load("catincart.png", Texture.class);
 
         assetManager.load("downtracks.png", Texture.class);
         assetManager.load("straighttracks.png", Texture.class);
@@ -57,11 +60,17 @@ public class Assets implements Disposable, AssetErrorListener {
 
     public class MineCartAssets {
         public final Texture minecart;
+        public final Texture minecartFront;
+        public final Texture minecartBack;
         public final Texture spark;
+        public final Texture cat;
 
         public MineCartAssets() {
             minecart = assetManager.get("minecart.png");
+            minecartFront = assetManager.get("minecartfront.png");
+            minecartBack = assetManager.get("minecartback.png");
             spark = assetManager.get("spark.png");
+            cat = assetManager.get("catincart.png");
             minecart.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
         }
     }

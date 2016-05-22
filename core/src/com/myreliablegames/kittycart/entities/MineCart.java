@@ -1,5 +1,6 @@
 package com.myreliablegames.kittycart.entities;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -24,6 +25,8 @@ public class MineCart {
     private Vector2 velocity;
     private final double BOB_SPEED = 15;
     private final double ROTATION_SPEED = 300;
+    private final float MAX_ROTATION = 24;
+    private final double VELOCITY_BUFFER = Constants.GRAVITY * 2;
     private boolean wantsToJump;
     private JumpState jumpState;
     private MoveState moveState;
@@ -33,7 +36,7 @@ public class MineCart {
     private double wiggleDegrees;
     private float bob_offset;
     private float rotationAngle;
-    private final float MAX_ROTATION = 30;
+
 
     private SparkEmitter sparkEmitter;
 
@@ -53,58 +56,121 @@ public class MineCart {
 
     public void render(SpriteBatch batch) {
         bob_offset = 0;
+        bob_offset = (float) (Math.cos(wiggleDegrees) * 2) - (Constants.STRAIGHT_TRACK_THICKNESS / 2);
+        if (jumpState == JumpState.GROUNDED && moveState == MoveState.LEVEL) {
+            batch.draw(Assets.getInstance().mineCartAssets.minecartBack, position.x - Constants.MINECART_WIDTH, position.y + bob_offset);
+            batch.draw(Assets.getInstance().mineCartAssets.cat, position.x - Constants.MINECART_WIDTH, position.y + bob_offset);
+            batch.draw(Assets.getInstance().mineCartAssets.minecartFront, position.x - Constants.MINECART_WIDTH, position.y + bob_offset);
+        } else {
 
-        if (jumpState == JumpState.GROUNDED) {
-            bob_offset = (float) (Math.cos(wiggleDegrees) * 2) - (Constants.STRAIGHT_TRACK_THICKNESS / 2);
+            // Back of cart draws first.
+            batch.draw(
+                    Assets.getInstance().mineCartAssets.minecartBack,
+                    position.x - Constants.MINECART_WIDTH,
+                    position.y + bob_offset,
+                    Constants.MINECART_WIDTH / 2,
+                    Constants.MINECART_WIDTH / 2,
+                    Constants.MINECART_WIDTH,
+                    Constants.MINECART_WIDTH,
+                    1f,
+                    1f,
+                    rotationAngle,
+                    1,
+                    1,
+                    64,
+                    64,
+                    false,
+                    false
+
+            );
+
+            // Then the cat in the cart
+            batch.draw(
+                    Assets.getInstance().mineCartAssets.cat,
+                    position.x - Constants.MINECART_WIDTH,
+                    position.y + bob_offset,
+                    Constants.MINECART_WIDTH / 2,
+                    Constants.MINECART_WIDTH / 2,
+                    Constants.MINECART_WIDTH,
+                    Constants.MINECART_WIDTH,
+                    1f,
+                    1f,
+                    rotationAngle,
+                    1,
+                    1,
+                    64,
+                    64,
+                    false,
+                    false
+
+            );
+
+            // Finally the front draws
+            batch.draw(
+                    Assets.getInstance().mineCartAssets.minecartFront,
+                    position.x - Constants.MINECART_WIDTH,
+                    position.y + bob_offset,
+                    Constants.MINECART_WIDTH / 2,
+                    Constants.MINECART_WIDTH / 2,
+                    Constants.MINECART_WIDTH,
+                    Constants.MINECART_WIDTH,
+                    1f,
+                    1f,
+                    rotationAngle,
+                    1,
+                    1,
+                    64,
+                    64,
+                    false,
+                    false
+
+            );
         }
-
-        batch.draw(
-                Assets.getInstance().mineCartAssets.minecart,
-                position.x - Constants.MINECART_WIDTH,
-                position.y + bob_offset,
-                Constants.MINECART_WIDTH / 2,
-                Constants.MINECART_WIDTH / 2,
-                Constants.MINECART_WIDTH,
-                Constants.MINECART_WIDTH,
-                1f,
-                1f,
-                rotationAngle,
-                1,
-                1,
-                64,
-                64,
-                false,
-                false
-
-                );
 
         sparkEmitter.render(batch);
     }
 
-
     public void update(float delta, Array<Track> trackList, CoinHandler coinHandler) {
+
         wiggleDegrees += (BOB_SPEED * delta);
         updateRotationAngle(delta);
 
-        if (velocity.y < -Constants.SPEED_LIMIT) {
-            velocity.y = -Constants.SPEED_LIMIT;
-        }
 
         if (wiggleDegrees > 360) {
             wiggleDegrees = 0;
         }
 
+        // Gravity
+        velocity.y -= Constants.GRAVITY;
+
         prevPosition.set(position);
         position.mulAdd(velocity, delta);
         sparkEmitter.update(delta);
 
-        // Gravity
-        velocity.y -= Constants.GRAVITY;
+        continueJump();
 
-        float buffer = 1f;
-        if (prevPosition.y + buffer < position.y) {
+        checkPositionAndStates();
+
+        checkTracks(trackList);
+
+        if (jumpState == JumpState.GROUNDED) {
+            if (wantsToJump) {
+                startJump(wantsToLongJump);
+                wantsToJump = false;
+                wantsToLongJump = false;
+            }
+        }
+
+        checkCoins(coinHandler);
+
+    }
+
+    private void checkPositionAndStates() {
+
+        float positionBuffer = 1f;
+        if (prevPosition.y + positionBuffer < position.y) {
             moveState = MoveState.CLIMBING;
-        } else if (prevPosition.y > position.y + buffer) {
+        } else if (prevPosition.y - positionBuffer > position.y) {
             moveState = MoveState.DESCENDING;
             if (jumpState == JumpState.GROUNDED) {
                 jumpState = JumpState.FALLING;
@@ -113,8 +179,23 @@ public class MineCart {
             moveState = MoveState.LEVEL;
         }
 
-        continueJump();
 
+        // Reset if falling off.
+        if (position.y < 0) {
+            position.y = Constants.WORLD_HEIGHT;
+            level.reset();
+            velocity.y = 0;
+        }
+
+
+        if (velocity.y < -Constants.SPEED_LIMIT) {
+            velocity.y = -Constants.SPEED_LIMIT;
+        }
+
+
+    }
+
+    private void checkTracks(Array<Track> trackList) {
         for (Track track : trackList) {
             if (landedOnTrack(track)) {
                 float contactHeight;
@@ -125,15 +206,17 @@ public class MineCart {
                 }
                 if (contactHeight > 0) {
                     if (position.y < contactHeight) {
-                        velocity.y = 0;
+
+                        if (velocity.y < 0) {
+                            velocity.y = 0;
+                        }
                         position.y = contactHeight;
+
                         if (track.getTrackType() == Track.TrackType.DOWN) {
                             velocity.y = Constants.TRACK_SPEED;
-
                         } else if (track.getTrackType() == Track.TrackType.UP) {
-                            velocity.y = -(Constants.TRACK_SPEED - (Constants.GRAVITY));
+                            velocity.y = -(Constants.TRACK_SPEED);
                             moveState = MoveState.CLIMBING;
-
                         }
 
                         if (moveState == MoveState.DESCENDING) {
@@ -145,15 +228,9 @@ public class MineCart {
                 }
             }
         }
+    }
 
-        if (jumpState == JumpState.GROUNDED) {
-            if (wantsToJump) {
-                startJump(wantsToLongJump);
-                wantsToJump = false;
-                wantsToLongJump = false;
-            }
-        }
-
+    private void checkCoins(CoinHandler coinHandler) {
         DelayedRemovalArray<Coin> coins = coinHandler.getCoins();
         for (Coin coin : coins) {
             if (coin.isColliding(getMineCartBoundingRectangle())) {
@@ -163,22 +240,25 @@ public class MineCart {
             }
         }
 
-        // Reset if falling off.
-        if (position.y < 0) {
-            position.y = Constants.WORLD_HEIGHT;
-            level.reset();
-            velocity.y = 0;
-        }
     }
 
     private void updateRotationAngle(float delta) {
-        if(moveState == MoveState.DESCENDING && rotationAngle > - MAX_ROTATION) {
+
+
+        if (moveState == MoveState.DESCENDING && rotationAngle > -MAX_ROTATION) {
             rotationAngle -= ROTATION_SPEED * delta;
-        } else if(moveState == MoveState.CLIMBING && rotationAngle <  MAX_ROTATION) {
+        } else if (moveState == MoveState.CLIMBING && rotationAngle < MAX_ROTATION) {
             rotationAngle += ROTATION_SPEED * delta;
-        } else if (moveState == MoveState.LEVEL && jumpState == JumpState.GROUNDED){
-            rotationAngle = 0;
+        } else if (moveState == MoveState.LEVEL && jumpState == JumpState.GROUNDED) {
+            if (rotationAngle > 0) {
+                rotationAngle -= ROTATION_SPEED * delta;
+            } else {
+                rotationAngle += ROTATION_SPEED * delta;
+            }
         }
+
+
+        // rotationAngle = new Vector2(- Constants.TRACK_SPEED, velocity.y).angle();
     }
 
     private Rectangle getWheelBoundingRectangle() {
@@ -231,11 +311,11 @@ public class MineCart {
 
     private void startJump(boolean longJump) {
         if (jumpState == JumpState.GROUNDED)
-        if (longJump) {
-            jumpState = JumpState.LONG_JUMPING;
-        } else {
-            jumpState = JumpState.JUMPING;
-        }
+            if (longJump) {
+                jumpState = JumpState.LONG_JUMPING;
+            } else {
+                jumpState = JumpState.JUMPING;
+            }
         jumpStartTime = TimeUtils.nanoTime();
         continueJump();
     }
@@ -274,7 +354,7 @@ public class MineCart {
             return new Vector2(position.x - Constants.MINECART_WIDTH + Constants.MINECART_EDGE_TO_WHEEL_SIZE - Constants.SPARK_WIDTH, position.y + bob_offset);
         } else {
 
-         return new Vector2(position.x - Constants.MINECART_WIDTH + Constants.MINECART_EDGE_TO_WHEEL_SIZE - Constants.SPARK_WIDTH, position.y);
+            return new Vector2(position.x - Constants.MINECART_WIDTH + Constants.MINECART_EDGE_TO_WHEEL_SIZE - Constants.SPARK_WIDTH, position.y);
         }
     }
 

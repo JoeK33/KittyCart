@@ -67,19 +67,16 @@ public class Track {
     public float contactHeight(Vector2 position) {
 
         if (trackType == TrackType.UP) {
-            float contactPoint = this.position.y + climbOffset(this.position, position);
+            float contactPoint = this.position.y + climbOffset(this.position, position) + Constants.STRAIGHT_TRACK_THICKNESS / 2;
             // Gdx.app.log(TAG, "Contact up at " + Float.toString(contactPoint));
-
-            if (contactPoint > this.position.y + Constants.TRACK_WIDTH) {
-                contactPoint = this.position.y + Constants.TRACK_WIDTH;
-            }
             return contactPoint;
         } else if (trackType == TrackType.STRAIGHT) {
             float contactPoint = this.position.y + Constants.TRACK_WIDTH;
             // Gdx.app.log(TAG, "Contact straight at " + Float.toString(contactPoint));
             return contactPoint;
         } else if (trackType == TrackType.DOWN) {
-            float contactPoint = this.position.y - climbOffset(this.position, new Vector2(position.x - Constants.MINECART_WIDTH, position.y));
+            float contactPoint = this.position.y - climbOffset(this.position,
+                            new Vector2(position.x - Constants.MINECART_WIDTH, position.y)) + Constants.STRAIGHT_TRACK_THICKNESS / 2;
            // float contactPoint = this.position.y - climbOffset(this.position, position);
             //  Gdx.app.log(TAG, "Contact down at " + Float.toString(contactPoint));
             return contactPoint;

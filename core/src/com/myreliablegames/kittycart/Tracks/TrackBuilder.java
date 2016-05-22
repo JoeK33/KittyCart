@@ -2,6 +2,7 @@ package com.myreliablegames.kittycart.Tracks;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.DelayedRemovalArray;
 import com.myreliablegames.kittycart.entities.Track;
 import com.myreliablegames.kittycart.util.Constants;
 
@@ -12,7 +13,7 @@ import com.myreliablegames.kittycart.util.Constants;
  */
 public class TrackBuilder {
 
-    private Array<Track> railSection = new Array();
+    private Array<Track> railSection = new DelayedRemovalArray<Track>();
     private float speed;
     private Vector2 nextPosition;
 

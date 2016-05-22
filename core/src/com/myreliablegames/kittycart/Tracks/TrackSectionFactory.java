@@ -93,7 +93,7 @@ public class TrackSectionFactory {
 
     public TrackSection makeMountainSection(Vector2 position) {
         builder = new TrackBuilder(position, Constants.TRACK_SPEED);
-        builder.addStraight(3).addUp(5).addDown(5).addStraight(3);
+        builder.addStraight(6).addUp(7).addDown(7).addStraight(3);
         return builder.build();
     }
 

@@ -7,6 +7,7 @@ import com.myreliablegames.kittycart.util.Constants;
 
 /**
  * Created by Joe on 5/21/2016.
+ * The cat in the minecart.
  */
 public class Cat {
 

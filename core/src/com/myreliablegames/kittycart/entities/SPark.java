@@ -19,7 +19,7 @@ public class Spark {
 
     public Spark(Vector2 position) {
         this.position = position;
-        velocity = new Vector2(Constants.TRACK_SPEED - getWiggleRoom(), getWiggleRoom());
+        velocity = new Vector2(- getWiggleRoom(), getWiggleRoom());
     }
 
     public void update(float delta) {
@@ -28,20 +28,17 @@ public class Spark {
     }
 
     public void render(SpriteBatch batch) {
-        batch.draw(Assets.getInstance().mineCartAssets.spark, position.x, position.y);
+            batch.draw(Assets.getInstance().mineCartAssets.spark, position.x, position.y);
     }
 
     public boolean inBounds() {
-        if (position.y < 0 - REMOVAL_BUFFER || position.x < 0 - REMOVAL_BUFFER){
-            return false;
-        }
+        return !(position.y < 0 - REMOVAL_BUFFER || position.x < 0 - REMOVAL_BUFFER);
 
-        return true;
     }
 
     private float getWiggleRoom() {
 
-        return (float) Math.random() * 400;
+        return (float) (Math.random() * 400);
     }
 
 }

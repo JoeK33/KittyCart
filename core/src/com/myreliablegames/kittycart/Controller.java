@@ -13,10 +13,12 @@ import com.myreliablegames.kittycart.entities.MineCart;
 public class Controller implements InputProcessor {
     MineCart mineCart;
     private long touchTime;
+    private Level level;
 
-    public Controller(MineCart mineCart) {
+    public Controller(MineCart mineCart, Level level) {
         this.mineCart = mineCart;
         touchTime = 0;
+        this.level = level;
     }
 
     @Override
@@ -30,7 +32,9 @@ public class Controller implements InputProcessor {
             mineCart.jump();
         } else if (keycode == Input.Keys.L) {
             mineCart.longLump();
-        }
+        }  else if (keycode == Input.Keys.P) {
+        level.pauseToggle();
+    }
         return false;
     }
 

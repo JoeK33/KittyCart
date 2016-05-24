@@ -46,17 +46,12 @@ public class Track {
 
         if (trackType == TrackType.STRAIGHT) {
             return new Rectangle(position.x, position.y + Constants.TRACK_WIDTH - Constants.STRAIGHT_TRACK_THICKNESS, Constants.TRACK_WIDTH, Constants.TRACK_WIDTH);
+        } else if (trackType == TrackType.DOWN){
+            return new Rectangle(position.x, position.y + Constants.STRAIGHT_TRACK_THICKNESS, Constants.TRACK_WIDTH, Constants.TRACK_WIDTH - Constants.STRAIGHT_TRACK_THICKNESS);
         } else {
             return new Rectangle(position.x, position.y, Constants.TRACK_WIDTH, Constants.TRACK_WIDTH);
         }
 
-    }
-
-    public boolean equals(Track track) {
-        if (position.equals(track.position)) {
-            return true;
-        }
-        return false;
     }
 
     public TrackType getTrackType() {

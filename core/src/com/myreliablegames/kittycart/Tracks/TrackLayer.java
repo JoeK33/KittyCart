@@ -1,9 +1,11 @@
 package com.myreliablegames.kittycart.Tracks;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.DelayedRemovalArray;
+import com.myreliablegames.kittycart.Zone;
 import com.myreliablegames.kittycart.entities.Track;
 import com.myreliablegames.kittycart.util.Assets;
 import com.myreliablegames.kittycart.util.Constants;
@@ -33,27 +35,13 @@ public class TrackLayer {
     }
 
     public void update(float delta) {
-
         tracksInPlay.begin();
 
-
         while (tracksInPlay.size < tracksWide) {
-
             Track lastTrack = tracksInPlay.get(tracksInPlay.size - 1);
             Vector2 trackAddPosition = new Vector2(lastTrack.getPosition());
             trackAddPosition.x += Constants.TRACK_WIDTH;
-
-            if (tracksTraveled < 100) {
-                tracksInPlay.addAll(factory.makeRandomJaggedNoGapShiftSection(trackAddPosition).getTracks());
-            } else if (tracksTraveled < 200) {
-                tracksInPlay.addAll(factory.makeRandomSection(trackAddPosition).getTracks());
-            }else if (tracksTraveled < 300) {
-                tracksInPlay.addAll(factory.makeRandomGapSection(trackAddPosition).getTracks());
-            }else if (tracksTraveled < 400)  {
-                tracksInPlay.addAll(factory.makeRandomGapShiftSection(trackAddPosition).getTracks());
-            }else {
-                tracksInPlay.addAll(factory.makeRandomNoGapShiftSection(trackAddPosition).getTracks());
-            }
+            tracksInPlay.addAll(factory.makeCorrespondingSection(Zone.getZone() ,trackAddPosition).getTracks());
         }
 
 
@@ -68,7 +56,7 @@ public class TrackLayer {
         }
         tracksInPlay.end();
 
-        //  Gdx.app.log("TrackLayer", "Tracks in play: " + tracksInPlay.size);
+          Gdx.app.log("TrackLayer", "Tracks in play: " + tracksInPlay.size);
 
     }
 

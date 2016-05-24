@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.myreliablegames.kittycart.Tracks.TrackLayer;
 import com.myreliablegames.kittycart.entities.CoinHandler;
 import com.myreliablegames.kittycart.entities.MineCart;
+import com.myreliablegames.kittycart.util.Assets;
 import com.myreliablegames.kittycart.util.Constants;
 import com.myreliablegames.kittycart.util.FollowCamera;
 
@@ -24,6 +25,7 @@ public class Level {
     private TrackLayer trackLayer;
     private HUD hud;
     private int score;
+    private boolean paused;
     private CoinHandler coinHandler;
     private int coinsCollected = 0;
     private BackGround backGround;
@@ -37,12 +39,14 @@ public class Level {
         viewport.setCamera(camera.getCamera());
         camera.update(mineCart);
 
-        Controller controller = new Controller(mineCart);
+        Controller controller = new Controller(mineCart, this);
         Gdx.input.setInputProcessor(controller);
 
         trackLayer = new TrackLayer();
         coinHandler = new CoinHandler(trackLayer);
         backGround = new BackGround();
+        paused = false;
+        Assets.getInstance().soundAssets.gameMusic.play();
 
     }
 
@@ -51,12 +55,14 @@ public class Level {
     }
 
     public void update(float delta) {
-        score++;
-        coinHandler.update(delta);
-        backGround.update(delta);
-        trackLayer.update(delta);
-        mineCart.update(delta, trackLayer.getTracksInPlay(), coinHandler);
-        camera.update(mineCart);
+        if (!paused) {
+            score++;
+            coinHandler.update(delta);
+            backGround.update(delta);
+            trackLayer.update(delta);
+            mineCart.update(delta, trackLayer.getTracksInPlay(), coinHandler);
+            camera.update(mineCart);
+        }
     }
 
     public void addScore(int score) {
@@ -83,6 +89,16 @@ public class Level {
 
         batch.end();
 
+    }
+
+    public void pauseToggle() {
+        if (paused) {
+            paused = false;
+            Assets.getInstance().soundAssets.gameMusic.play();
+        } else {
+            paused = true;
+            Assets.getInstance().soundAssets.gameMusic.pause();
+        }
     }
 
     public void addCoin() {

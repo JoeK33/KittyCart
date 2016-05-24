@@ -41,7 +41,7 @@ public class GameScreen extends ScreenAdapter {
 
         level.update(delta);
         level.render(batch);
-        logger.log();
+        logger.log();;
 
     }
 

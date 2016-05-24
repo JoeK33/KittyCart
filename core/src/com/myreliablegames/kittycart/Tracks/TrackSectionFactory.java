@@ -1,6 +1,7 @@
 package com.myreliablegames.kittycart.Tracks;
 
 import com.badlogic.gdx.math.Vector2;
+import com.myreliablegames.kittycart.Zone;
 import com.myreliablegames.kittycart.util.Constants;
 
 /**
@@ -24,85 +25,22 @@ public class TrackSectionFactory {
 
     }
 
-    public TrackSection makeEasySection(Vector2 position) {
-
-        int choice = (int) (Math.random() * 7);
-        TrackSection section;
-
-        switch (choice) {
-            case 0:
-                section = makeJump(position);
-                break;
-            case 1:
-                section = makePlateau(position);
-                break;
-            case 2:
-                section = makeValley(position);
-                break;
-            case 3:
-                section = makeStepsSection(position);
-                break;
-            case 4:
-                section = makeGapsSection(position);
-                break;
-            case 5:
-                section = makeMountainSection(position);
-                break;
-            case 6:
-                section = makeSmallStepsSection(position);
-                break;
+    public TrackSection makeCorrespondingSection(Zone zone, Vector2 position) {
+        switch (zone) {
+            case DESERT:
+                return makeRandomSmallGapShiftSection(position);
+            case FOREST:
+                return makeRandomSection(position);
+            case MOUNTAIN:
+                return makeRandomGapShiftSection(position);
+            case OCEAN:
+                return makeRandomGapSection(position);
+            case PLAINS:
+                return makeRandomJaggedNoGapShiftSection(position);
             default:
-                section = makeStraightSection(position);
-                break;
-
+                return makeStraightSection(position);
         }
-
-        return section;
-
     }
-
-    public TrackSection makeJump(Vector2 position) {
-        builder = new TrackBuilder(position, Constants.TRACK_SPEED);
-        builder.addStraight(3).addUp(1).addGap(3).addDown(1).addStraight(3);
-        return builder.build();
-    }
-
-    public TrackSection makePlateau(Vector2 position) {
-        builder = new TrackBuilder(position, Constants.TRACK_SPEED);
-        builder.addStraight(3).addUp(1).addStraight(3).addDown(1).addStraight(3);
-        return builder.build();
-    }
-
-    public TrackSection makeValley(Vector2 position) {
-        builder = new TrackBuilder(position, Constants.TRACK_SPEED);
-        builder.addStraight(3).addUp(2).addDown(3).addStraight(1).addUp(3).addDown(2).addStraight(3);
-        return builder.build();
-    }
-
-    public TrackSection makeStepsSection(Vector2 position) {
-        builder = new TrackBuilder(position, Constants.TRACK_SPEED);
-        builder.addStraight(3).shiftUp(2).addStraight(3).shiftUp(2).addStraight(3).shiftDown(4);
-        return builder.build();
-    }
-
-    public TrackSection makeGapsSection(Vector2 position) {
-        builder = new TrackBuilder(position, Constants.TRACK_SPEED);
-        builder.addStraight(3).addGap(2).addStraight(3).addGap(2).addStraight(3);
-        return builder.build();
-    }
-
-    public TrackSection makeMountainSection(Vector2 position) {
-        builder = new TrackBuilder(position, Constants.TRACK_SPEED);
-        builder.addStraight(6).addUp(7).addDown(7).addStraight(3);
-        return builder.build();
-    }
-
-    public TrackSection makeSmallStepsSection(Vector2 position) {
-        builder = new TrackBuilder(position, Constants.TRACK_SPEED);
-        builder.addStraight(2).shiftUp(2).addStraight(2).shiftUp(2).addStraight(2).shiftUp(2).shiftDown(6).addStraight(5);
-        return builder.build();
-    }
-
 
     public TrackSection makeRandomSection(Vector2 position) {
         builder = new TrackBuilder(position, Constants.TRACK_SPEED);
@@ -128,10 +66,11 @@ public class TrackSectionFactory {
         return builder.build();
     }
 
-    public TrackSection makeRandomNoGapShiftSection(Vector2 position) {
+    public TrackSection makeRandomSmallGapShiftSection(Vector2 position) {
         builder = new TrackBuilder(position, Constants.TRACK_SPEED);
         builder = addRandomConnectedSection(builder, 3);
         builder = addRandomShiftSection(builder, 4);
+        builder = addRandomGapSection(builder, 2);
         builder = addRandomConnectedSection(builder, 3);
         builder = addRandomShiftSection(builder, 4);
         builder.addStraight(1);
@@ -217,7 +156,7 @@ public class TrackSectionFactory {
         return builder;
     }
 
-    // Randomly gaps track up to 4 units, minimum of 2 units
+    // Randomly gaps track up to 4 units, minimum of 2 units. Cart skips over gaps of 1.
     private TrackBuilder addRandomGapSection(TrackBuilder builder, int maxGaps) {
         int minimumGap = 2;
         // generate random length of gap

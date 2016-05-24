@@ -37,7 +37,6 @@ public class MineCart {
     private float rotationAngle;
     private Cat cat;
 
-
     private SparkEmitter sparkEmitter;
 
     public MineCart(Level level) {
@@ -53,6 +52,8 @@ public class MineCart {
         bobOffset = 0;
         rotationAngle = 0;
         cat = new Cat();
+        Assets.getInstance().soundAssets.trainSound.play();
+
     }
 
     public void render(SpriteBatch batch) {
@@ -111,7 +112,6 @@ public class MineCart {
     }
 
     public void update(float delta, Array<Track> trackList, CoinHandler coinHandler) {
-
         wiggleDegrees += (BOB_SPEED * delta);
         updateRotationAngle(delta);
 
@@ -126,53 +126,58 @@ public class MineCart {
         position.mulAdd(velocity, delta);
         sparkEmitter.update(delta);
 
-        continueJump();
+        continueJump(delta);
 
-        checkPositionAndStates();
+        checkPositionAndMoveState();
 
-        checkTracks(trackList);
+        // checkTracks must be called to handle track hit detection.
+        boolean madeContact = checkTracks(trackList);
+
+        if (moveState == MoveState.DESCENDING && !madeContact) {
+            jumpState = JumpState.FALLING;
+        }
 
         if (jumpState == JumpState.GROUNDED) {
             if (wantsToJump) {
-                startJump(wantsToLongJump);
+                startJump(wantsToLongJump, delta);
                 wantsToJump = false;
                 wantsToLongJump = false;
             }
         }
 
         checkCoins(coinHandler);
+        handleMusic();
         cat.update(delta);
     }
 
-    private void checkPositionAndStates() {
+    private void checkPositionAndMoveState() {
 
-        float positionBuffer = 1f;
-        if (prevPosition.y + positionBuffer < position.y) {
+        float upBuffer = 1f;
+        float downBuffer = 2f;
+        if (prevPosition.y + upBuffer < position.y) {
             moveState = MoveState.CLIMBING;
-        } else if (prevPosition.y - positionBuffer > position.y) {
+        } else if (prevPosition.y - downBuffer > position.y) {
             moveState = MoveState.DESCENDING;
-            if (jumpState == JumpState.GROUNDED) {
-                jumpState = JumpState.FALLING;
-            }
         } else {
             moveState = MoveState.LEVEL;
         }
 
         // Reset if falling off.
         if (position.y < 0) {
+            Assets.getInstance().soundAssets.gameOverSound.play();
             position.y = Constants.WORLD_HEIGHT;
             level.reset();
             velocity.y = 0;
         }
 
-
         if (velocity.y < -Constants.SPEED_LIMIT) {
             velocity.y = -Constants.SPEED_LIMIT;
         }
-
     }
 
-    private void checkTracks(Array<Track> trackList) {
+    // Returns true if minecart touched a rail.  False if no contact.
+    private boolean checkTracks(Array<Track> trackList) {
+        boolean touchedATrack = false;
         for (Track track : trackList) {
             if (landedOnTrack(track)) {
                 float contactHeight;
@@ -198,15 +203,18 @@ public class MineCart {
                             velocity.y = Constants.GRAVITY;
                         }
 
-                        if (moveState == MoveState.DESCENDING) {
+                        if (jumpState != JumpState.GROUNDED) {
                             sparkEmitter.spark();
+                            Assets.getInstance().soundAssets.railContactSound.play();
                         }
 
                         jumpState = JumpState.GROUNDED;
+                        touchedATrack = true;
                     }
                 }
             }
         }
+        return touchedATrack;
     }
 
     private void checkCoins(CoinHandler coinHandler) {
@@ -216,9 +224,23 @@ public class MineCart {
                 coinHandler.remove(coin);
                 level.addScore(Constants.COIN_SCORE_VALUE);
                 level.addCoin();
+                Assets.getInstance().soundAssets.coinPickupSound.play(.5f);
             }
         }
 
+    }
+
+    private void handleMusic() {
+        if (jumpState == JumpState.GROUNDED) {
+            if (!Assets.getInstance().soundAssets.trainSound.isPlaying()) {
+                Assets.getInstance().soundAssets.trainSound.play();
+            }
+        } else {
+            if (Assets.getInstance().soundAssets.trainSound.isPlaying()) {
+                Assets.getInstance().soundAssets.trainSound.pause();
+            }
+
+        }
     }
 
     private void updateRotationAngle(float delta) {
@@ -292,28 +314,30 @@ public class MineCart {
         jump();
     }
 
-    private void startJump(boolean longJump) {
+    private void startJump(boolean longJump, float delta) {
         if (jumpState == JumpState.GROUNDED)
             if (longJump) {
                 jumpState = JumpState.LONG_JUMPING;
+                Assets.getInstance().soundAssets.longJumpSound.play();
             } else {
                 jumpState = JumpState.JUMPING;
+                Assets.getInstance().soundAssets.jumpSound.play();
             }
         jumpStartTime = TimeUtils.nanoTime();
-        continueJump();
+        continueJump(delta);
     }
 
-    private void continueJump() {
+    private void continueJump(float delta) {
         if (jumpState == JumpState.JUMPING) {
             if (TimeUtils.timeSinceNanos(jumpStartTime) * MathUtils.nanoToSec < Constants.JUMP_DURATION) {
-                velocity.y = Constants.JUMP_SPEED;
+                velocity.y = Constants.JUMP_SPEED * delta;
                 //    Gdx.app.log(TAG, "Jumping!");
             } else {
                 endJump();
             }
         } else if (jumpState == JumpState.LONG_JUMPING) {
             if (TimeUtils.timeSinceNanos(jumpStartTime) * MathUtils.nanoToSec < Constants.JUMP_DURATION) {
-                velocity.y = Constants.JUMP_SPEED * 1.5f;
+                velocity.y = Constants.JUMP_SPEED * 1.5f * delta;
                 //    Gdx.app.log(TAG, "Long Jumping!");
             } else {
                 endJump();

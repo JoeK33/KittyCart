@@ -19,6 +19,7 @@ public class TrackLayer {
     private DelayedRemovalArray<Track> tracksInPlay;
     private int tracksWide;
     private int tracksTraveled;
+    private int tracksInZone;
     private int supportsHigh;
     private final int SUPPORT_HEIGHT;
 
@@ -28,6 +29,7 @@ public class TrackLayer {
         tracksInPlay.addAll(factory.makeStraightSection(new Vector2(0, Constants.WORLD_HEIGHT / 6)).getTracks());
         tracksWide = (int) (Constants.WORLD_WIDTH * 1.5f / Constants.TRACK_WIDTH);
         tracksTraveled = 0;
+        tracksInZone = 0;
         SUPPORT_HEIGHT = Assets.getInstance().trackAssets.supports.getHeight();
 
         supportsHigh = (int) (Constants.WORLD_HEIGHT / SUPPORT_HEIGHT) * 2;
@@ -45,6 +47,8 @@ public class TrackLayer {
         }
 
 
+
+
         for (Track track : tracksInPlay) {
             track.update(delta);
 
@@ -52,11 +56,18 @@ public class TrackLayer {
             if (track.movedOutOfBounds()) {
                 tracksInPlay.removeValue(track, true);
                 tracksTraveled++;
+                tracksInZone++;
             }
         }
         tracksInPlay.end();
 
-          Gdx.app.log("TrackLayer", "Tracks in play: " + tracksInPlay.size);
+        int tracksPerZone = 100;
+        if (tracksInZone > tracksPerZone) {
+            Zone.changeZone();
+            tracksInZone = 0;
+        }
+
+          //Gdx.app.log("TrackLayer", "Tracks in play: " + tracksInPlay.size);
 
     }
 
@@ -67,12 +78,15 @@ public class TrackLayer {
     public void render(SpriteBatch batch) {
 
         for (Track track : tracksInPlay) {
-            track.render(batch);
-            // Place track supports
-            for (int i = 0; i < supportsHigh; i++) {
-                batch.draw(Assets.getInstance().trackAssets.supports,
-                        track.getPosition().x,
-                        track.getPosition().y - SUPPORT_HEIGHT - (i * SUPPORT_HEIGHT));
+
+            if (track.getPosition().x < Constants.WORLD_WIDTH) {
+                track.render(batch);
+                // Place track supports
+                for (int i = 0; i < supportsHigh; i++) {
+                    batch.draw(Assets.getInstance().trackAssets.supports,
+                            track.getPosition().x,
+                            track.getPosition().y - SUPPORT_HEIGHT - (i * SUPPORT_HEIGHT));
+                }
             }
         }
     }
@@ -80,6 +94,7 @@ public class TrackLayer {
 
     public void resetDistance() {
         tracksTraveled = 0;
+        tracksInZone = 0;
     }
 
     // Don't send out tracks that are out of the bounds of the game world.

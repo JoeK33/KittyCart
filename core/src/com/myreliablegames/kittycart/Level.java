@@ -46,7 +46,7 @@ public class Level {
         coinHandler = new CoinHandler(trackLayer);
         backGround = new BackGround();
         paused = false;
-        Assets.getInstance().soundAssets.gameMusic.play();
+    //    Assets.getInstance().soundAssets.gameMusic.play();
 
     }
 
@@ -94,10 +94,10 @@ public class Level {
     public void pauseToggle() {
         if (paused) {
             paused = false;
-            Assets.getInstance().soundAssets.gameMusic.play();
+        //    Assets.getInstance().soundAssets.gameMusic.play();
         } else {
             paused = true;
-            Assets.getInstance().soundAssets.gameMusic.pause();
+        //    Assets.getInstance().soundAssets.gameMusic.pause();
         }
     }
 

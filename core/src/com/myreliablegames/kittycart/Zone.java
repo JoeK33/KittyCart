@@ -18,7 +18,7 @@ public enum Zone {
         return zone;
     }
 
-    public void changeZone() {
+    public static void changeZone() {
         Zone newZone = Zone.chooseRandomZone();
         while (getZone() == newZone) {
             newZone = Zone.chooseRandomZone();

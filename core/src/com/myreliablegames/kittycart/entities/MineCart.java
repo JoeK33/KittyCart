@@ -126,7 +126,7 @@ public class MineCart {
         position.mulAdd(velocity, delta);
         sparkEmitter.update(delta);
 
-        continueJump(delta);
+        continueJump();
 
         checkPositionAndMoveState();
 
@@ -139,7 +139,7 @@ public class MineCart {
 
         if (jumpState == JumpState.GROUNDED) {
             if (wantsToJump) {
-                startJump(wantsToLongJump, delta);
+                startJump(wantsToLongJump);
                 wantsToJump = false;
                 wantsToLongJump = false;
             }
@@ -314,7 +314,7 @@ public class MineCart {
         jump();
     }
 
-    private void startJump(boolean longJump, float delta) {
+    private void startJump(boolean longJump) {
         if (jumpState == JumpState.GROUNDED)
             if (longJump) {
                 jumpState = JumpState.LONG_JUMPING;
@@ -324,20 +324,20 @@ public class MineCart {
                 Assets.getInstance().soundAssets.jumpSound.play();
             }
         jumpStartTime = TimeUtils.nanoTime();
-        continueJump(delta);
+        continueJump();
     }
 
-    private void continueJump(float delta) {
+    private void continueJump() {
         if (jumpState == JumpState.JUMPING) {
             if (TimeUtils.timeSinceNanos(jumpStartTime) * MathUtils.nanoToSec < Constants.JUMP_DURATION) {
-                velocity.y = Constants.JUMP_SPEED * delta;
+                velocity.y = Constants.JUMP_SPEED;
                 //    Gdx.app.log(TAG, "Jumping!");
             } else {
                 endJump();
             }
         } else if (jumpState == JumpState.LONG_JUMPING) {
             if (TimeUtils.timeSinceNanos(jumpStartTime) * MathUtils.nanoToSec < Constants.JUMP_DURATION) {
-                velocity.y = Constants.JUMP_SPEED * 1.5f * delta;
+                velocity.y = Constants.JUMP_SPEED * 1.5f;
                 //    Gdx.app.log(TAG, "Long Jumping!");
             } else {
                 endJump();

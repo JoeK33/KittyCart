@@ -231,11 +231,11 @@ public class Assets implements Disposable, AssetErrorListener {
 
             trainSound = assetManager.get("sounds/trainsound.wav");
             trainSound.setLooping(true);
-            trainSound.setVolume(.30f);
+            trainSound.setVolume(.6f);
 
             gameMusic = assetManager.get("sounds/gamemusic.mp3");
             gameMusic.setLooping(true);
-            gameMusic.setVolume(.5f);
+            gameMusic.setVolume(.4f);
 
         }
 

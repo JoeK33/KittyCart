@@ -156,7 +156,7 @@ public class TrackSectionFactory {
         return builder;
     }
 
-    // Randomly gaps track up to 4 units, minimum of 2 units. Cart skips over gaps of 1.
+    // Randomly gaps track up to max units, minimum of 2 units. Cart skips over gaps of 1.
     private TrackBuilder addRandomGapSection(TrackBuilder builder, int maxGaps) {
         int minimumGap = 2;
         // generate random length of gap

@@ -8,9 +8,10 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.myreliablegames.kittycart.Zone;
 
 /**
  * Created by Joe on 5/17/2016.
@@ -28,6 +29,7 @@ public class Assets implements Disposable, AssetErrorListener {
     public PickUpAssets pickUpAssets;
     public BackGroundAssets backGroundAssets;
     public SoundAssets soundAssets;
+    public MenuAssets menuAssets;
 
     private Assets() {
     }
@@ -41,104 +43,113 @@ public class Assets implements Disposable, AssetErrorListener {
 
     public void init(AssetManager assetManager) {
         this.assetManager = assetManager;
+        assetManager.load("packed/kittycart.pack", TextureAtlas.class);
+
         // Load Assets
-        assetManager.load("minecart.png", Texture.class);
-        assetManager.load("minecartfront.png", Texture.class);
-        assetManager.load("minecartback.png", Texture.class);
-        assetManager.load("spark.png", Texture.class);
-        assetManager.load("catincart.png", Texture.class);
-        assetManager.load("catframes.png", Texture.class);
-
-        assetManager.load("downtracks.png", Texture.class);
-        assetManager.load("straighttracks.png", Texture.class);
-        assetManager.load("uptracks.png", Texture.class);
-        assetManager.load("supports.png", Texture.class);
-
-        assetManager.load("coinframes.png", Texture.class);
-
-        assetManager.load("background/desertbottomtile.png", Texture.class);
-        assetManager.load("background/desertmiddletile.png", Texture.class);
-        assetManager.load("background/deserttoptile.png", Texture.class);
-
-        assetManager.load("background/oceanbottomtile.png", Texture.class);
-        assetManager.load("background/oceanmiddletile.png", Texture.class);
-        assetManager.load("background/oceantoptile.png", Texture.class);
-
-        assetManager.load("background/mountainbottomtile.png", Texture.class);
-        assetManager.load("background/mountainmiddletile.png", Texture.class);
-        assetManager.load("background/mountaintoptile.png", Texture.class);
-
-        assetManager.load("background/forestbottomtile.png", Texture.class);
-        assetManager.load("background/forestmiddletile.png", Texture.class);
-        assetManager.load("background/foresttoptile.png", Texture.class);
-
-        assetManager.load("background/plainsbottomtile.png", Texture.class);
-        assetManager.load("background/plainsmiddletile.png", Texture.class);
-        assetManager.load("background/plainstoptile.png", Texture.class);
-
         assetManager.load("sounds/coinpickupsound.wav", Sound.class);
         assetManager.load("sounds/gameoversound.wav", Sound.class);
         assetManager.load("sounds/jumpsound.wav", Sound.class);
         assetManager.load("sounds/longjumpsound.wav", Sound.class);
         assetManager.load("sounds/railhitsound.wav", Sound.class);
+        assetManager.load("sounds/transitionsound.wav", Sound.class);
         assetManager.load("sounds/trainsound.wav", Music.class);
-        assetManager.load("sounds/gamemusic.mp3", Music.class);
+        assetManager.load("sounds/oceanmusic.mp3", Music.class);
+        assetManager.load("sounds/forestmusic.mp3", Music.class);
+        assetManager.load("sounds/desertmusic.mp3", Music.class);
+        assetManager.load("sounds/plainsmusic.mp3", Music.class);
+        assetManager.load("sounds/mountainmusic.mp3", Music.class);
 
         assetManager.finishLoading();
 
-        mineCartAssets = new MineCartAssets();
-        trackAssets = new TrackAssets();
-        pickUpAssets = new PickUpAssets();
-        backGroundAssets = new BackGroundAssets();
+        TextureAtlas atlas = assetManager.get("packed/kittycart.pack");
+
+        mineCartAssets = new MineCartAssets(atlas);
+        trackAssets = new TrackAssets(atlas);
+        pickUpAssets = new PickUpAssets(atlas);
+        backGroundAssets = new BackGroundAssets(atlas);
         soundAssets = new SoundAssets();
+        menuAssets = new MenuAssets(atlas);
+
     }
 
     public class MineCartAssets {
-        public final Texture minecart;
-        public final Texture minecartFront;
-        public final Texture minecartBack;
-        public final Texture spark;
-        public final Texture cat;
-        public final Animation animatedCat;
+        public final TextureRegion minecartFront;
+        public final TextureRegion minecartBack;
+        public final TextureRegion skateboardFront;
+        public final TextureRegion skateboardBack;
+        public final TextureRegion litterboxFront;
+        public final TextureRegion litterboxBack;
+        public final TextureRegion coasterCarFront;
+        public final TextureRegion coasterCarBack;
 
-        public MineCartAssets() {
-            minecart = assetManager.get("minecart.png");
-            minecartFront = assetManager.get("minecartfront.png");
-            minecartBack = assetManager.get("minecartback.png");
-            spark = assetManager.get("spark.png");
-            cat = assetManager.get("catincart.png");
+        public final TextureRegion spark;
 
-            int FRAME_COLS = 5;
-            int FRAME_ROWS = 1;
+        public final Animation animatedCat1;
+        public final Animation animatedCat2;
+        public final Animation animatedCat3;
+        public final Animation animatedCat4;
+
+        public MineCartAssets(TextureAtlas atlas) {
+
+            minecartFront = atlas.findRegion("minecarts/minecartfront");
+            minecartBack = atlas.findRegion("minecarts/minecartback");
+
+            skateboardFront = atlas.findRegion("minecarts/skateboardfront");
+            skateboardBack = atlas.findRegion("minecarts/skateboardback");
+
+            litterboxFront = atlas.findRegion("minecarts/litterboxfront");
+            litterboxBack = atlas.findRegion("minecarts/litterboxback");
+
+            coasterCarFront = atlas.findRegion("minecarts/coastercarfront");
+            coasterCarBack = atlas.findRegion("minecarts/coastercarback");
+
+            spark = atlas.findRegion("spark");
 
 
-            Texture catSheet = assetManager.get("catframes.png");
-            TextureRegion[][] tmp = TextureRegion.split(catSheet, catSheet.getWidth()/FRAME_COLS, catSheet.getHeight()/FRAME_ROWS);
-            TextureRegion[] catFrames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
-            int index = 0;
-            for (int i = 0; i < FRAME_ROWS; i++) {
-                for (int j = 0; j < FRAME_COLS; j++) {
-                    catFrames[index++] = tmp[i][j];
-                }
-            }
-
-            animatedCat = new Animation(.33f, catFrames);
-            animatedCat.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
-
+            animatedCat1 = makeCatAnimationFromRegion(atlas.findRegion("cats/catframes"));
+            animatedCat2 = makeCatAnimationFromRegion(atlas.findRegion("cats/catframes2"));
+            animatedCat3 = makeCatAnimationFromRegion(atlas.findRegion("cats/catframes3"));
+            animatedCat4 = makeCatAnimationFromRegion(atlas.findRegion("cats/catframes4"));
         }
     }
 
-    public class TrackAssets {
-        public final Texture upTrack;
-        public final Texture downTrack;
-        public final Texture straightTrack;
-        public final Texture supports;
+    private Animation makeCatAnimationFromRegion(TextureRegion catSheet) {
+        int FRAME_COLS = 5;
+        int FRAME_ROWS = 1;
 
-        public TrackAssets() {
-            upTrack = assetManager.get("uptracks.png");
-            downTrack = assetManager.get("downtracks.png");
-            straightTrack = assetManager.get("straighttracks.png");
-            supports = assetManager.get("supports.png");
+        TextureRegion[][] tmp = catSheet.split(Constants.CAT_SIZE, Constants.CAT_SIZE);
+        TextureRegion[] catFrames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
+        int index = 0;
+        for (int i = 0; i < FRAME_ROWS; i++) {
+            for (int j = 0; j < FRAME_COLS; j++) {
+                catFrames[index++] = tmp[i][j];
+            }
+        }
+        Animation animation = new Animation(.33f, catFrames);
+        animation.setPlayMode(Animation.PlayMode.LOOP_PINGPONG);
+        return animation;
+    }
+
+    public class TrackAssets {
+        public final TextureRegion upTrack;
+        public final TextureRegion downTrack;
+        public final TextureRegion straightTrack;
+        public final TextureRegion supports;
+        public final TextureRegion upTrackCoaster;
+        public final TextureRegion downTrackCoaster;
+        public final TextureRegion straightTrackCoaster;
+        public final TextureRegion supportsCoaster;
+
+        public TrackAssets(TextureAtlas atlas) {
+            upTrack = atlas.findRegion("tracks/uptracks");
+            downTrack = atlas.findRegion("tracks/downtracks");
+            straightTrack = atlas.findRegion("tracks/straighttracks");
+            supports = atlas.findRegion("tracks/supports");
+
+            upTrackCoaster = atlas.findRegion("tracks/coasteruptracks");
+            downTrackCoaster = atlas.findRegion("tracks/coasterdowntracks");
+            straightTrackCoaster = atlas.findRegion("tracks/coasterstraighttracks");
+            supportsCoaster = atlas.findRegion("tracks/coastersupports");
         }
     }
 
@@ -146,14 +157,14 @@ public class Assets implements Disposable, AssetErrorListener {
 
         public final Animation coinAnimation;
 
-        public PickUpAssets() {
+        public PickUpAssets(TextureAtlas atlas) {
 
             int FRAME_COLS = 4;
             int FRAME_ROWS = 1;
 
 
-            Texture coinSheet = assetManager.get("coinframes.png");
-            TextureRegion[][] tmp = TextureRegion.split(coinSheet, coinSheet.getWidth()/FRAME_COLS,coinSheet.getHeight()/FRAME_ROWS);
+            TextureRegion coinSheet = atlas.findRegion("coinframes");
+            TextureRegion[][] tmp = coinSheet.split(Constants.COIN_SIZE, Constants.COIN_SIZE);
             TextureRegion[] coinFrames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
             int index = 0;
             for (int i = 0; i < FRAME_ROWS; i++) {
@@ -168,47 +179,59 @@ public class Assets implements Disposable, AssetErrorListener {
     }
 
     public class BackGroundAssets {
-        public final Texture bottomDesertTile;
-        public final Texture middleDesertTile;
-        public final Texture topDesertTile;
+        public final TextureRegion bottomDesertTile;
+        public final TextureRegion middleDesertTile;
+        public final TextureRegion topDesertTile;
 
-        public final Texture bottomOceanTile;
-        public final Texture middleOceanTile;
-        public final Texture topOceanTile;
+        public final TextureRegion bottomOceanTile;
+        public final TextureRegion middleOceanTile;
+        public final TextureRegion topOceanTile;
 
-        public final Texture bottomMountainTile;
-        public final Texture middleMountainTile;
-        public final Texture topMountainTile;
+        public final TextureRegion bottomMountainTile;
+        public final TextureRegion middleMountainTile;
+        public final TextureRegion topMountainTile;
 
-        public final Texture bottomForestTile;
-        public final Texture middleForestTile;
-        public final Texture topForestTile;
+        public final TextureRegion bottomForestTile;
+        public final TextureRegion middleForestTile;
+        public final TextureRegion topForestTile;
 
-        public final Texture bottomPlainsTile;
-        public final Texture middlePlainsTile;
-        public final Texture topPlainsTile;
+        public final TextureRegion bottomPlainsTile;
+        public final TextureRegion middlePlainsTile;
+        public final TextureRegion topPlainsTile;
+
+        public final TextureRegion fishTile;
 
 
-        public BackGroundAssets() {
-            bottomDesertTile = assetManager.get("background/desertbottomtile.png");
-            middleDesertTile = assetManager.get("background/desertmiddletile.png");
-            topDesertTile = assetManager.get("background/deserttoptile.png");
+        public BackGroundAssets(TextureAtlas atlas) {
+            bottomDesertTile = atlas.findRegion("background/desertbottomtile");
+            middleDesertTile = atlas.findRegion("background/desertmiddletile");
+            topDesertTile = atlas.findRegion("background/deserttoptile");
 
-            bottomOceanTile = assetManager.get("background/oceanbottomtile.png");
-            middleOceanTile = assetManager.get("background/oceanmiddletile.png");
-            topOceanTile = assetManager.get("background/oceantoptile.png");
+            bottomOceanTile = atlas.findRegion("background/oceanbottomtile");
+            middleOceanTile = atlas.findRegion("background/oceanmiddletile");
+            topOceanTile = atlas.findRegion("background/oceantoptile");
 
-            bottomMountainTile = assetManager.get("background/mountainbottomtile.png");
-            middleMountainTile = assetManager.get("background/mountainmiddletile.png");
-            topMountainTile = assetManager.get("background/mountaintoptile.png");
+            bottomMountainTile = atlas.findRegion("background/mountainbottomtile");
+            middleMountainTile = atlas.findRegion("background/mountainmiddletile");
+            topMountainTile = atlas.findRegion("background/mountaintoptile");
 
-            bottomForestTile = assetManager.get("background/forestbottomtile.png");
-            middleForestTile = assetManager.get("background/forestmiddletile.png");
-            topForestTile = assetManager.get("background/foresttoptile.png");
+            bottomForestTile = atlas.findRegion("background/forestbottomtile");
+            middleForestTile = atlas.findRegion("background/forestmiddletile");
+            topForestTile = atlas.findRegion("background/foresttoptile");
 
-            bottomPlainsTile = assetManager.get("background/plainsbottomtile.png");
-            middlePlainsTile = assetManager.get("background/plainsmiddletile.png");
-            topPlainsTile = assetManager.get("background/plainstoptile.png");
+            bottomPlainsTile = atlas.findRegion("background/plainsbottomtile");
+            middlePlainsTile = atlas.findRegion("background/plainsmiddletile");
+            topPlainsTile = atlas.findRegion("background/plainstoptile");
+
+            fishTile = atlas.findRegion("background/fishtile");
+        }
+    }
+
+    public class MenuAssets {
+        public final TextureRegion selectionRectangle;
+
+        public MenuAssets(TextureAtlas atlas) {
+            selectionRectangle = atlas.findRegion("selectionrectangle");
         }
     }
 
@@ -219,8 +242,13 @@ public class Assets implements Disposable, AssetErrorListener {
         public final Sound jumpSound;
         public final Sound longJumpSound;
         public final Sound railContactSound;
+        public final Sound transitionSound;
         public final Music trainSound;
-        public final Music gameMusic;
+        public final Music forestMusic;
+        public final Music oceanMusic;
+        public final Music mountainMusic;
+        public final Music plainsMusic;
+        public final Music desertMusic;
 
         public SoundAssets() {
             coinPickupSound = assetManager.get("sounds/coinpickupsound.wav");
@@ -228,19 +256,50 @@ public class Assets implements Disposable, AssetErrorListener {
             jumpSound = assetManager.get("sounds/jumpsound.wav");
             longJumpSound = assetManager.get("sounds/longjumpsound.wav");
             railContactSound = assetManager.get("sounds/railhitsound.wav");
+            transitionSound = assetManager.get("sounds/transitionsound.wav");
 
             trainSound = assetManager.get("sounds/trainsound.wav");
             trainSound.setLooping(true);
             trainSound.setVolume(.6f);
 
-            gameMusic = assetManager.get("sounds/gamemusic.mp3");
-            gameMusic.setLooping(true);
-            gameMusic.setVolume(.4f);
+            oceanMusic = assetManager.get("sounds/oceanmusic.mp3");
+            oceanMusic.setLooping(true);
+            oceanMusic.setVolume(.4f);
+
+            forestMusic = assetManager.get("sounds/forestmusic.mp3");
+            forestMusic.setLooping(true);
+
+            desertMusic = assetManager.get("sounds/desertmusic.mp3");
+            desertMusic.setLooping(true);
+
+            plainsMusic = assetManager.get("sounds/plainsmusic.mp3");
+            plainsMusic.setLooping(true);
+            plainsMusic.setVolume(.6f);
+
+            mountainMusic = assetManager.get("sounds/mountainmusic.mp3");
+            mountainMusic.setLooping(true);
+            mountainMusic.setVolume(.5f);
 
         }
 
-    }
+        public Music getCorrespondingMusic(Zone zone) {
+            switch (zone) {
+                case DESERT:
+                    return desertMusic;
+                case FOREST:
+                    return forestMusic;
+                case MOUNTAIN:
+                    return mountainMusic;
+                case OCEAN:
+                    return oceanMusic;
+                case PLAINS:
+                    return plainsMusic;
+                default:
+                    return oceanMusic;
+            }
+        }
 
+    }
 
     @Override
     public void error(AssetDescriptor asset, Throwable throwable) {

@@ -2,6 +2,7 @@ package com.myreliablegames.kittycart.entities;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Pool;
 import com.myreliablegames.kittycart.util.Assets;
 import com.myreliablegames.kittycart.util.Constants;
 
@@ -11,15 +12,20 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Created by Joe on 5/19/2016.
  */
-public class Spark {
+public class Spark implements Pool.Poolable {
 
     private Vector2 position;
     private Vector2 velocity;
     private final float REMOVAL_BUFFER = 10;
 
-    public Spark(Vector2 position) {
-        this.position = position;
-        velocity = new Vector2(- getWiggleRoom(), getWiggleRoom());
+    public Spark() {
+        position = new Vector2();
+        velocity = new Vector2();
+    }
+
+    public void init(Vector2 position) {
+        this.position.set(position);
+        velocity.set(- getWiggleRoom(), getWiggleRoom());
     }
 
     public void update(float delta) {
@@ -41,4 +47,8 @@ public class Spark {
         return (float) (Math.random() * 400);
     }
 
+    @Override
+    public void reset() {
+        position.set(0, 0);
+    }
 }

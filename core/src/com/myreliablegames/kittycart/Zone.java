@@ -1,6 +1,7 @@
 package com.myreliablegames.kittycart;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.myreliablegames.kittycart.util.Assets;
 
 import java.util.Random;
@@ -45,8 +46,8 @@ public enum Zone {
         }
     }
 
-    public static Texture getTopTile(Zone zone) {
-        switch (zone) {
+    public static TextureRegion getTopTile() {
+        switch (Zone.getZone()) {
             case DESERT:
                 return Assets.getInstance().backGroundAssets.topDesertTile;
             case FOREST:
@@ -62,8 +63,8 @@ public enum Zone {
         }
     }
 
-    public static Texture getMiddleTile(Zone zone) {
-        switch (zone) {
+    public static TextureRegion getMiddleTile() {
+        switch (Zone.getZone()) {
             case DESERT:
                 return Assets.getInstance().backGroundAssets.middleDesertTile;
             case FOREST:
@@ -79,8 +80,8 @@ public enum Zone {
         }
     }
 
-    public static Texture getBottomTile(Zone zone) {
-        switch (zone) {
+    public static TextureRegion getBottomTile() {
+        switch (Zone.getZone()) {
             case DESERT:
                 return Assets.getInstance().backGroundAssets.bottomDesertTile;
             case FOREST:

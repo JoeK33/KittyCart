@@ -30,13 +30,16 @@ public class SparkEmitter {
 
             if (!spark.inBounds()) {
                 sparks.removeValue(spark, true);
+                EntityPools.getInstance().sparkPool.free(spark);
             }
         }
         sparks.end();
 
         if (sparking) {
             if (TimeUtils.nanoTime() < startTime + Constants.SPARK_DURATION_NANO) {
-                sparks.add(new Spark(minecart.getSparkPosition()));
+                Spark spark = EntityPools.getInstance().sparkPool.obtain();
+                spark.init(minecart.getSparkPosition());
+                sparks.add(spark);
             } else {
                 sparking = false;
             }

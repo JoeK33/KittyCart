@@ -1,6 +1,5 @@
 package com.myreliablegames.kittycart;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.MathUtils;
@@ -32,9 +31,17 @@ public class Controller implements InputProcessor {
             mineCart.jump();
         } else if (keycode == Input.Keys.L) {
             mineCart.longLump();
-        }  else if (keycode == Input.Keys.P) {
-        level.pauseToggle();
-    }
+        } else if (keycode == Input.Keys.P) {
+            level.pauseToggle();
+        } else if (keycode == Input.Keys.C) {
+            Zone.changeZone();
+        } else if (keycode == Input.Keys.BACK) {
+            if (level.isPaused()) {
+                level.goToMenu();
+            } else {
+                level.pauseToggle();
+            }
+        }
         return false;
     }
 
@@ -46,16 +53,22 @@ public class Controller implements InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         touchTime = TimeUtils.nanoTime();
+
         return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         // Touch to jump, hold and release to long jump.
-        if (timeSince(touchTime) < .3f) {
-            mineCart.jump();
+
+        if (level.isPaused()) {
+            level.pauseToggle();
         } else {
-            mineCart.longLump();
+            if (timeSince(touchTime) < .3f) {
+                mineCart.jump();
+            } else {
+                mineCart.longLump();
+            }
         }
 
         return false;

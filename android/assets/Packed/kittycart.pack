@@ -1,0 +1,313 @@
+
+kittycart.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+background/desertbottomtile
+  rotate: false
+  xy: 1, 517
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+background/deserttoptile
+  rotate: false
+  xy: 259, 517
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+background/forestbottomtile
+  rotate: false
+  xy: 517, 517
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+background/foresttoptile
+  rotate: false
+  xy: 1, 259
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+background/mountainbottomtile
+  rotate: false
+  xy: 259, 259
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+background/mountaintoptile
+  rotate: false
+  xy: 517, 259
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+background/oceanbottomtile
+  rotate: false
+  xy: 1, 1
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+background/oceantoptile
+  rotate: false
+  xy: 259, 1
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+background/plainsbottomtile
+  rotate: false
+  xy: 517, 1
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+
+kittycart2.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+background/plainstoptile
+  rotate: false
+  xy: 1, 515
+  size: 256, 256
+  orig: 256, 256
+  offset: 0, 0
+  index: -1
+background/desertmiddletile
+  rotate: false
+  xy: 259, 259
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1
+background/forestmiddletile
+  rotate: false
+  xy: 517, 259
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1
+background/mountainmiddletile
+  rotate: false
+  xy: 1, 1
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1
+
+kittycart3.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+background/fishtile
+  rotate: false
+  xy: 1, 1
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: -1
+background/oceanmiddletile
+  rotate: false
+  xy: 515, 1
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1
+
+kittycart4.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+background/plainsmiddletile
+  rotate: false
+  xy: 1, 1
+  size: 256, 512
+  orig: 256, 512
+  offset: 0, 0
+  index: -1
+
+kittycart5.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+cats/catframes
+  rotate: false
+  xy: 1, 133
+  size: 320, 64
+  orig: 320, 64
+  offset: 0, 0
+  index: -1
+cats/catframes2
+  rotate: false
+  xy: 1, 67
+  size: 320, 64
+  orig: 320, 64
+  offset: 0, 0
+  index: -1
+cats/catframes3
+  rotate: false
+  xy: 323, 133
+  size: 320, 64
+  orig: 320, 64
+  offset: 0, 0
+  index: -1
+cats/catframes4
+  rotate: false
+  xy: 1, 1
+  size: 320, 64
+  orig: 320, 64
+  offset: 0, 0
+  index: -1
+
+kittycart6.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+coinframes
+  rotate: false
+  xy: 1, 73
+  size: 128, 32
+  orig: 128, 32
+  offset: 0, 0
+  index: -1
+selectionrectangle
+  rotate: false
+  xy: 1, 1
+  size: 70, 70
+  orig: 70, 70
+  offset: 0, 0
+  index: -1
+spark
+  rotate: false
+  xy: 131, 73
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+
+kittycart7.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+minecarts/coastercarback
+  rotate: false
+  xy: 1, 133
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+minecarts/coastercarfront
+  rotate: false
+  xy: 1, 67
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+minecarts/litterboxback
+  rotate: false
+  xy: 67, 133
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+minecarts/litterboxfront
+  rotate: false
+  xy: 1, 1
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+minecarts/minecartback
+  rotate: false
+  xy: 67, 67
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+minecarts/minecartfront
+  rotate: false
+  xy: 133, 133
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+minecarts/skateboardback
+  rotate: false
+  xy: 67, 1
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+minecarts/skateboardfront
+  rotate: false
+  xy: 133, 67
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+
+kittycart8.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+tracks/coastersupports
+  rotate: false
+  xy: 1, 199
+  size: 64, 256
+  orig: 64, 256
+  offset: 0, 0
+  index: -1
+tracks/supports
+  rotate: false
+  xy: 67, 199
+  size: 64, 256
+  orig: 64, 256
+  offset: 0, 0
+  index: -1
+tracks/coasterdowntracks
+  rotate: false
+  xy: 1, 133
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+tracks/coasterstraighttracks
+  rotate: false
+  xy: 133, 391
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+tracks/coasteruptracks
+  rotate: false
+  xy: 1, 67
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+tracks/downtracks
+  rotate: false
+  xy: 67, 133
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+tracks/straighttracks
+  rotate: false
+  xy: 133, 325
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+tracks/uptracks
+  rotate: false
+  xy: 1, 1
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1

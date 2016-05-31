@@ -53,6 +53,12 @@ public class TrackSectionFactory {
         return builder.build();
     }
 
+    public TrackSection makeTransitionSection(Vector2 position) {
+        builder = new TrackBuilder(position, Constants.TRACK_SPEED);
+        builder.addStraight(sectionLength / 4).addTransition().addStraight(sectionLength / 4);
+        return builder.build();
+    }
+
     public TrackSection makeRandomGapSection(Vector2 position) {
         builder = new TrackBuilder(position, Constants.TRACK_SPEED);
         builder = addRandomConnectedSection(builder, 3);
@@ -79,7 +85,7 @@ public class TrackSectionFactory {
 
     public TrackSection makeRandomGapShiftSection(Vector2 position) {
         builder = new TrackBuilder(position, Constants.TRACK_SPEED);
-        builder = addRandomConnectedSection(builder, 2);
+        builder = addRandomConnectedSection(builder, 1);
         builder.addStraight(1);
         builder = addRandomShiftSection(builder, 3);
         builder = addRandomGapSection(builder, 3);

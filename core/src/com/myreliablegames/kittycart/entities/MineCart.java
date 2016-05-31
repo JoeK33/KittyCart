@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.DelayedRemovalArray;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.Timer;
 import com.myreliablegames.kittycart.Level;
+import com.myreliablegames.kittycart.PlayerPreferences;
 import com.myreliablegames.kittycart.util.Assets;
 import com.myreliablegames.kittycart.util.Constants;
 
@@ -40,7 +41,7 @@ public class MineCart {
     private SparkEmitter sparkEmitter;
 
     public MineCart(Level level) {
-        this.position = new Vector2(Constants.WORLD_WIDTH / 5, Constants.WORLD_HEIGHT / 2);
+        this.position = new Vector2(Constants.WORLD_WIDTH / 5, (Constants.WORLD_HEIGHT / 4) * 3);
         velocity = new Vector2(0, 0);
         jumpState = JumpState.FALLING;
         prevPosition = new Vector2(position);
@@ -60,15 +61,14 @@ public class MineCart {
         bobOffset = 0;
         bobOffset = (float) (Math.cos(wiggleDegrees) * 2) - (Constants.STRAIGHT_TRACK_THICKNESS / 2);
         if (jumpState == JumpState.GROUNDED && moveState == MoveState.LEVEL) {
-            batch.draw(Assets.getInstance().mineCartAssets.minecartBack, position.x - Constants.MINECART_WIDTH, position.y + bobOffset);
+            //Draw the back of the cart, then the cat, then the front.
+            batch.draw(PlayerPreferences.getCartBack(), position.x - Constants.MINECART_WIDTH, position.y + bobOffset);
             cat.render(batch, position, bobOffset, 0, jumpState);
-            batch.draw(Assets.getInstance().mineCartAssets.minecartFront, position.x - Constants.MINECART_WIDTH, position.y + bobOffset);
+            batch.draw(PlayerPreferences.getCartFront(), position.x - Constants.MINECART_WIDTH, position.y + bobOffset);
         } else {
 
             // Back of cart draws first.
-            batch.draw(
-                    Assets.getInstance().mineCartAssets.minecartBack,
-                    position.x - Constants.MINECART_WIDTH,
+            batch.draw(PlayerPreferences.getCartBack(), position.x - Constants.MINECART_WIDTH,
                     position.y + bobOffset,
                     Constants.MINECART_WIDTH / 2,
                     Constants.MINECART_WIDTH / 2,
@@ -76,21 +76,13 @@ public class MineCart {
                     Constants.MINECART_WIDTH,
                     1f,
                     1f,
-                    rotationAngle,
-                    1,
-                    1,
-                    64,
-                    64,
-                    false,
-                    false
-            );
+                    rotationAngle);
 
+            // Render the cat passenger.
             cat.render(batch, position, bobOffset, rotationAngle, jumpState);
 
             // Finally the front draws
-            batch.draw(
-                    Assets.getInstance().mineCartAssets.minecartFront,
-                    position.x - Constants.MINECART_WIDTH,
+            batch.draw(PlayerPreferences.getCartFront(), position.x - Constants.MINECART_WIDTH,
                     position.y + bobOffset,
                     Constants.MINECART_WIDTH / 2,
                     Constants.MINECART_WIDTH / 2,
@@ -98,20 +90,13 @@ public class MineCart {
                     Constants.MINECART_WIDTH,
                     1f,
                     1f,
-                    rotationAngle,
-                    1,
-                    1,
-                    64,
-                    64,
-                    false,
-                    false
-            );
+                    rotationAngle);
         }
 
         sparkEmitter.render(batch);
     }
 
-    public void update(float delta, Array<Track> trackList, CoinHandler coinHandler) {
+    public void update(float delta, DelayedRemovalArray<Track> trackList, CoinHandler coinHandler) {
         wiggleDegrees += (BOB_SPEED * delta);
         updateRotationAngle(delta);
 
@@ -178,7 +163,13 @@ public class MineCart {
     // Returns true if minecart touched a rail.  False if no contact.
     private boolean checkTracks(Array<Track> trackList) {
         boolean touchedATrack = false;
+
         for (Track track : trackList) {
+
+            if (track.getTrackType() == Track.TrackType.TRANSITION && track.getBoundingRectangle().overlaps(getMineCartBoundingRectangle())) {
+                level.startTransition();
+            }
+
             if (landedOnTrack(track)) {
                 float contactHeight;
                 if (track.getTrackType() == Track.TrackType.DOWN) {
@@ -196,7 +187,7 @@ public class MineCart {
 
                         if (track.getTrackType() == Track.TrackType.DOWN) {
                             velocity.y = Constants.TRACK_SPEED;
-                        } else if (track.getTrackType() == Track.TrackType.UP) {
+                        } else if (track.getTrackType() == Track.TrackType.UP || track.getTrackType() == Track.TrackType.TRANSITION) {
                             velocity.y = -(Constants.TRACK_SPEED);
                             moveState = MoveState.CLIMBING;
                         } else if (track.getTrackType() == Track.TrackType.STRAIGHT) {
@@ -214,6 +205,7 @@ public class MineCart {
                 }
             }
         }
+
         return touchedATrack;
     }
 
@@ -243,8 +235,15 @@ public class MineCart {
         }
     }
 
-    private void updateRotationAngle(float delta) {
+    public void pause() {
+        Assets.getInstance().soundAssets.trainSound.pause();
+    }
 
+    public void unPause() {
+        Assets.getInstance().soundAssets.trainSound.play();
+    }
+
+    private void updateRotationAngle(float delta) {
 
         if (moveState == MoveState.DESCENDING && rotationAngle > -MAX_ROTATION) {
             rotationAngle -= ROTATION_SPEED * delta;
@@ -315,29 +314,33 @@ public class MineCart {
     }
 
     private void startJump(boolean longJump) {
-        if (jumpState == JumpState.GROUNDED)
+        if (jumpState == JumpState.GROUNDED) {
+            velocity.y = 0;
             if (longJump) {
                 jumpState = JumpState.LONG_JUMPING;
                 Assets.getInstance().soundAssets.longJumpSound.play();
+                velocity.y = Constants.JUMP_SPEED * 1.45f;
             } else {
                 jumpState = JumpState.JUMPING;
                 Assets.getInstance().soundAssets.jumpSound.play();
+                velocity.y = Constants.JUMP_SPEED;
             }
-        jumpStartTime = TimeUtils.nanoTime();
-        continueJump();
+            jumpStartTime = TimeUtils.nanoTime();
+            continueJump();
+        }
     }
 
     private void continueJump() {
         if (jumpState == JumpState.JUMPING) {
             if (TimeUtils.timeSinceNanos(jumpStartTime) * MathUtils.nanoToSec < Constants.JUMP_DURATION) {
-                velocity.y = Constants.JUMP_SPEED;
+              //  velocity.y = Constants.JUMP_SPEED;
                 //    Gdx.app.log(TAG, "Jumping!");
             } else {
                 endJump();
             }
         } else if (jumpState == JumpState.LONG_JUMPING) {
             if (TimeUtils.timeSinceNanos(jumpStartTime) * MathUtils.nanoToSec < Constants.JUMP_DURATION) {
-                velocity.y = Constants.JUMP_SPEED * 1.5f;
+              //  velocity.y = Constants.JUMP_SPEED * 1.5f;
                 //    Gdx.app.log(TAG, "Long Jumping!");
             } else {
                 endJump();
@@ -358,10 +361,10 @@ public class MineCart {
     public Vector2 getSparkPosition() {
 
         if (jumpState == JumpState.GROUNDED) {
-            return new Vector2(position.x - Constants.MINECART_WIDTH + Constants.MINECART_EDGE_TO_WHEEL_SIZE - Constants.SPARK_WIDTH, position.y + bobOffset);
+            return new Vector2(position.x - Constants.MINECART_WIDTH + Constants.MINECART_EDGE_TO_WHEEL_SIZE - Constants.SPARK_WIDTH / 2, position.y + bobOffset - Constants.SPARK_WIDTH / 2);
         } else {
 
-            return new Vector2(position.x - Constants.MINECART_WIDTH + Constants.MINECART_EDGE_TO_WHEEL_SIZE - Constants.SPARK_WIDTH, position.y);
+            return new Vector2(position.x - Constants.MINECART_WIDTH + Constants.MINECART_EDGE_TO_WHEEL_SIZE - Constants.SPARK_WIDTH / 2, position.y - Constants.SPARK_WIDTH / 2);
         }
     }
 

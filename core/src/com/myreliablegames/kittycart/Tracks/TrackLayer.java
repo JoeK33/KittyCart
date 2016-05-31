@@ -5,7 +5,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.DelayedRemovalArray;
+import com.myreliablegames.kittycart.PlayerPreferences;
 import com.myreliablegames.kittycart.Zone;
+import com.myreliablegames.kittycart.entities.EntityPools;
 import com.myreliablegames.kittycart.entities.Track;
 import com.myreliablegames.kittycart.util.Assets;
 import com.myreliablegames.kittycart.util.Constants;
@@ -30,7 +32,7 @@ public class TrackLayer {
         tracksWide = (int) (Constants.WORLD_WIDTH * 1.5f / Constants.TRACK_WIDTH);
         tracksTraveled = 0;
         tracksInZone = 0;
-        SUPPORT_HEIGHT = Assets.getInstance().trackAssets.supports.getHeight();
+        SUPPORT_HEIGHT = Assets.getInstance().trackAssets.supports.getRegionHeight();
 
         supportsHigh = (int) (Constants.WORLD_HEIGHT / SUPPORT_HEIGHT) * 2;
 
@@ -39,15 +41,21 @@ public class TrackLayer {
     public void update(float delta) {
         tracksInPlay.begin();
 
+        if (tracksInPlay.size < 1) {
+            tracksInPlay.addAll(factory.makeStraightSection(new Vector2(0, Constants.WORLD_HEIGHT / 6)).getTracks());
+        }
         while (tracksInPlay.size < tracksWide) {
-            Track lastTrack = tracksInPlay.get(tracksInPlay.size - 1);
+            Track lastTrack = tracksInPlay.peek();
             Vector2 trackAddPosition = new Vector2(lastTrack.getPosition());
             trackAddPosition.x += Constants.TRACK_WIDTH;
-            tracksInPlay.addAll(factory.makeCorrespondingSection(Zone.getZone() ,trackAddPosition).getTracks());
+
+            if (tracksInZone > Constants.TRACKS_PER_ZONE) {
+                tracksInPlay.addAll(factory.makeTransitionSection(trackAddPosition).getTracks()) ;
+                tracksInZone = 0;
+                } else{
+                    tracksInPlay.addAll(factory.makeCorrespondingSection(Zone.getZone(), trackAddPosition).getTracks());
+                }
         }
-
-
-
 
         for (Track track : tracksInPlay) {
             track.update(delta);
@@ -55,20 +63,27 @@ public class TrackLayer {
             // Remove tracks that have passed out of play.
             if (track.movedOutOfBounds()) {
                 tracksInPlay.removeValue(track, true);
+                EntityPools.getInstance().free(track);
                 tracksTraveled++;
                 tracksInZone++;
             }
         }
         tracksInPlay.end();
 
-        int tracksPerZone = 100;
-        if (tracksInZone > tracksPerZone) {
-            Zone.changeZone();
-            tracksInZone = 0;
+    }
+
+    public void transition() {
+
+        // Remove tracks off screen that are a different style.
+        tracksInPlay.begin();
+        for (Track track: tracksInPlay) {
+            if (track.getPosition().x > Constants.WORLD_WIDTH) {
+                tracksInPlay.removeValue(track, true);
+                EntityPools.getInstance().trackPool.free(track);
+            }
+
         }
-
-          //Gdx.app.log("TrackLayer", "Tracks in play: " + tracksInPlay.size);
-
+        tracksInPlay.end();
     }
 
     public int getTracksTraveled() {
@@ -79,13 +94,20 @@ public class TrackLayer {
 
         for (Track track : tracksInPlay) {
 
+            // Don't render what you can't see
             if (track.getPosition().x < Constants.WORLD_WIDTH) {
                 track.render(batch);
                 // Place track supports
                 for (int i = 0; i < supportsHigh; i++) {
-                    batch.draw(Assets.getInstance().trackAssets.supports,
-                            track.getPosition().x,
-                            track.getPosition().y - SUPPORT_HEIGHT - (i * SUPPORT_HEIGHT));
+                    if (PlayerPreferences.coasterModeOn()) {
+                        batch.draw(Assets.getInstance().trackAssets.supportsCoaster,
+                                track.getPosition().x,
+                                track.getPosition().y - SUPPORT_HEIGHT - (i * SUPPORT_HEIGHT));
+                    } else {
+                        batch.draw(Assets.getInstance().trackAssets.supports,
+                                track.getPosition().x,
+                                track.getPosition().y - SUPPORT_HEIGHT - (i * SUPPORT_HEIGHT));
+                    }
                 }
             }
         }
@@ -98,9 +120,9 @@ public class TrackLayer {
     }
 
     // Don't send out tracks that are out of the bounds of the game world.
-    public Array<Track> getTracksInPlay() {
+    public DelayedRemovalArray<Track> getTracksInPlay() {
         if (tracksInPlay.size > tracksWide) {
-            Array<Track> tempTracks = new Array<Track>(tracksInPlay);
+            DelayedRemovalArray<Track> tempTracks = new DelayedRemovalArray<Track>(tracksInPlay);
             tempTracks.removeRange(tracksWide, tempTracks.size - 1);
             return tempTracks;
         } else {

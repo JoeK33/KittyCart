@@ -7,9 +7,6 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.myreliablegames.kittycart.Tracks.TrackLayer;
 import com.myreliablegames.kittycart.util.Constants;
 
-
-
-
 /**
  * Created by Joe on 5/19/2016.
  * Deals with coins.  Uses a timer to deploy a set of coins at an interval above the track.
@@ -19,7 +16,6 @@ public class CoinHandler {
     private DelayedRemovalArray<Coin> coins;
     private TrackLayer trackLayer;
     private long coinTimer;
-
 
     public CoinHandler(TrackLayer trackLayer) {
         coins = new DelayedRemovalArray<Coin>();
@@ -50,9 +46,20 @@ public class CoinHandler {
             coin.update(delta);
             if (coin.getPosition().x < 0 - Constants.COIN_SIZE) {
                 coins.removeValue(coin, true);
+                EntityPools.getInstance().coinPool.free(coin);
             }
         }
+        coins.end();
+    }
 
+    public void removeOffScreenCoins() {
+
+        coins.begin();
+        for (Coin coin : coins) {
+            if (coin.getPosition().x > Constants.WORLD_WIDTH) {
+                coins.removeValue(coin, true);
+            }
+        }
         coins.end();
     }
 
@@ -67,13 +74,16 @@ public class CoinHandler {
     }
 
     public void addCoin(Vector2 position) {
-        coins.add(new Coin(position));
+        Coin coin = EntityPools.getInstance().coinPool.obtain();
+        coin.init(position);
+        coins.add(coin);
     }
 
     public void remove(Coin coin) {
         coins.begin();
         if (coins.contains(coin, true)) {
             coins.removeValue(coin, true);
+            EntityPools.getInstance().free(coin);
         }
         coins.end();
     }

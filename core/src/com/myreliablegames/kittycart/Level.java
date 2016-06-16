@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.myreliablegames.kittycart.Tracks.TrackLayer;
 import com.myreliablegames.kittycart.entities.CoinHandler;
 import com.myreliablegames.kittycart.entities.MineCart;
+import com.myreliablegames.kittycart.entities.TumblingObjectManager;
 import com.myreliablegames.kittycart.util.Assets;
 import com.myreliablegames.kittycart.util.Constants;
 import com.myreliablegames.kittycart.util.FollowCamera;
@@ -32,6 +33,7 @@ public class Level {
     private int score;
     private boolean paused;
     private CoinHandler coinHandler;
+    private TumblingObjectManager tumblingObjectManager;
     private int coinsCollected = 0;
     private BackGround backGround;
     private long lastTransition;
@@ -39,12 +41,14 @@ public class Level {
     private boolean tryToTransition;
     private GameScreen gameScreen;
     private Preferences prefs = Gdx.app.getPreferences("My Preferences");
+    private ActionResolver resolver;
 
-    public Level(GameScreen gameScreen) {
+    public Level(GameScreen gameScreen, ActionResolver resolver) {
+        this.resolver = resolver;
         viewport = new ExtendViewport(Constants.WORLD_WIDTH, Constants.WORLD_HEIGHT);
         mineCart = new MineCart(this);
         this.gameScreen = gameScreen;
-
+        Zone.changeZone();
         camera = new FollowCamera(new OrthographicCamera(Constants.WORLD_WIDTH / 2, Constants.WORLD_HEIGHT / 2));
         hud = new HUD(camera.getCamera());
         viewport.setCamera(camera.getCamera());
@@ -53,16 +57,19 @@ public class Level {
         Controller controller = new Controller(mineCart, this);
         Gdx.input.setInputProcessor(controller);
 
-        trackLayer = new TrackLayer();
+        trackLayer = new TrackLayer(false);
         coinHandler = new CoinHandler(trackLayer);
+        tumblingObjectManager = new TumblingObjectManager();
         backGround = new BackGround();
         paused = false;
         tryToTransition = false;
         lastTransition = TimeUtils.nanoTime();
         Assets.getInstance().soundAssets.getCorrespondingMusic(Zone.getZone()).play();
+
     }
 
     public void goToMenu() {
+        Assets.getInstance().soundAssets.getCorrespondingMusic(Zone.getZone()).stop();
         gameScreen.goToMenuScreen();
     }
 
@@ -81,13 +88,15 @@ public class Level {
             backGround.update(delta);
             trackLayer.update(delta);
             mineCart.update(delta, trackLayer.getTracksInPlay(), coinHandler);
-            camera.update(mineCart);
+
+            tumblingObjectManager.update(delta);
 
             if (tryToTransition) {
                 transition();
                 tryToTransition = false;
             }
         }
+        camera.update(mineCart);
     }
 
     public void addScore(int score) {
@@ -111,8 +120,11 @@ public class Level {
         int newDistanceTotal = oldDistance + trackLayer.getTracksTraveled();
         prefs.putInteger("distance", newDistanceTotal);
 
+        prefs.flush();
+
         score = 0;
         coinsCollected = 0;
+        resolver.submitScore(trackLayer.getTracksTraveled());
         trackLayer.resetDistance();
     }
 
@@ -132,6 +144,7 @@ public class Level {
             trackLayer.render(batch);
             coinHandler.render(batch);
             mineCart.render(batch);
+            tumblingObjectManager.render(batch);
             hud.render(batch, score, trackLayer.getTracksTraveled(), coinsCollected);
         }
 
@@ -171,8 +184,10 @@ public class Level {
                 @Override
                 public void run() {
                     Zone.changeZone();
+                    tumblingObjectManager.reset();
                     transitioning = false;
                     Assets.getInstance().soundAssets.getCorrespondingMusic(Zone.getZone()).play();
+
                 }
             }, .5f);
 

@@ -14,11 +14,10 @@ public class BackGround {
     private int numTilesWide;
     private float tileSize;
     private float scrollingPoint;
-    private final float SCROLL_SPEED = 100;
+    private final float SCROLL_SPEED = 150;
     private final int NUMBER_OF_BOTTOM_TILE_ROWS = 3;
     private final int NUMBER_OF_MIDDLE_TILE_ROWS = 1;
     private final int NUMBER_OF_TOP_TILE_ROWS = 3;
-
 
     public BackGround() {
         tileSize = Constants.BACKGROUND_TILE_SIZE;
@@ -61,6 +60,4 @@ public class BackGround {
             scrollingPoint = 0;
         }
     }
-
-
 }

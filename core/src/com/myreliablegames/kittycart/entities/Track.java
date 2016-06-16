@@ -72,7 +72,6 @@ public class Track implements Pool.Poolable {
             return new Rectangle(position.x, position.y, Constants.TRACK_WIDTH, Constants.TRACK_WIDTH);
 
         }
-
 }
 
     public TrackType getTrackType() {
@@ -97,7 +96,6 @@ public class Track implements Pool.Poolable {
             //  Gdx.app.log(TAG, "Contact down at " + Float.toString(contactPoint));
             return contactPoint;
         }
-
         return -1;
     }
 
@@ -108,7 +106,6 @@ public class Track implements Pool.Poolable {
         float offset = (Constants.TRACK_WIDTH - Constants.STRAIGHT_TRACK_THICKNESS) * (1f - percentRemaining);
         //Gdx.app.log(TAG, "Offset " + Float.toString(offset));
         return offset;
-
     }
 
     public Vector2 getPosition() {

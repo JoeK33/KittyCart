@@ -22,7 +22,6 @@ public class TrackSectionFactory {
         builder = new TrackBuilder(position, Constants.TRACK_SPEED);
         builder.addStraight(sectionLength);
         return builder.build();
-
     }
 
     public TrackSection makeCorrespondingSection(Zone zone, Vector2 position) {
@@ -34,12 +33,20 @@ public class TrackSectionFactory {
             case MOUNTAIN:
                 return makeRandomGapShiftSection(position);
             case OCEAN:
-                return makeRandomGapSection(position);
-            case PLAINS:
                 return makeRandomJaggedNoGapShiftSection(position);
+            case PLAINS:
+                return makeRandomGapSection(position);
             default:
                 return makeStraightSection(position);
         }
+    }
+
+    public TrackSection makeRandomConnectedSection(Vector2 position) {
+        builder = new TrackBuilder(position, Constants.TRACK_SPEED);
+        builder = addRandomConnectedSection(builder, 5);
+        builder = addRandomConnectedSection(builder, 5);
+        builder.addStraight(1);
+        return builder.build();
     }
 
     public TrackSection makeRandomSection(Vector2 position) {

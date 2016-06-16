@@ -21,7 +21,6 @@ public class TrackBuilder {
     private final float TRACK_MAX_HEIGHT = Constants.WORLD_HEIGHT - (2 * Constants.TRACK_WIDTH);
     private final float TRACK_MIN_HEIGHT = Constants.TRACK_WIDTH;
 
-
     public TrackBuilder(Vector2 startPosition, float speed) {
         nextPosition = startPosition;
         this.speed = speed;

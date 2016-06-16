@@ -6,7 +6,6 @@ import com.badlogic.gdx.assets.AssetErrorListener;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -16,7 +15,7 @@ import com.myreliablegames.kittycart.Zone;
 /**
  * Created by Joe on 5/17/2016.
  * Controls assets for the game.  Assets are loaded into asset manager before being made accessable via inner
- * objects.
+ * objects.  To use: Load assets.  When they're done, call init to reference what was loaded.
  */
 public class Assets implements Disposable, AssetErrorListener {
 
@@ -30,6 +29,7 @@ public class Assets implements Disposable, AssetErrorListener {
     public BackGroundAssets backGroundAssets;
     public SoundAssets soundAssets;
     public MenuAssets menuAssets;
+    public TumbleAssets tumbleAssets;
 
     private Assets() {
     }
@@ -41,7 +41,15 @@ public class Assets implements Disposable, AssetErrorListener {
         return instance;
     }
 
-    public void init(AssetManager assetManager) {
+    public boolean update() {
+        return assetManager.update();
+    }
+
+    public float getProgress() {
+        return assetManager.getProgress();
+    }
+
+    public void loadAssets(AssetManager assetManager) {
         this.assetManager = assetManager;
         assetManager.load("packed/kittycart.pack", TextureAtlas.class);
 
@@ -52,24 +60,29 @@ public class Assets implements Disposable, AssetErrorListener {
         assetManager.load("sounds/longjumpsound.wav", Sound.class);
         assetManager.load("sounds/railhitsound.wav", Sound.class);
         assetManager.load("sounds/transitionsound.wav", Sound.class);
+        assetManager.load("sounds/selectsound.wav", Sound.class);
+        assetManager.load("sounds/meow1.wav", Sound.class);
+        assetManager.load("sounds/meow2.wav", Sound.class);
+        assetManager.load("sounds/meow3.wav", Sound.class);
+
         assetManager.load("sounds/trainsound.wav", Music.class);
         assetManager.load("sounds/oceanmusic.mp3", Music.class);
         assetManager.load("sounds/forestmusic.mp3", Music.class);
         assetManager.load("sounds/desertmusic.mp3", Music.class);
         assetManager.load("sounds/plainsmusic.mp3", Music.class);
         assetManager.load("sounds/mountainmusic.mp3", Music.class);
+        assetManager.load("sounds/menumusic.mp3", Music.class);
+    }
 
-        assetManager.finishLoading();
-
+    public void assign() {
         TextureAtlas atlas = assetManager.get("packed/kittycart.pack");
-
         mineCartAssets = new MineCartAssets(atlas);
         trackAssets = new TrackAssets(atlas);
         pickUpAssets = new PickUpAssets(atlas);
         backGroundAssets = new BackGroundAssets(atlas);
         soundAssets = new SoundAssets();
         menuAssets = new MenuAssets(atlas);
-
+        tumbleAssets = new TumbleAssets(atlas);
     }
 
     public class MineCartAssets {
@@ -162,7 +175,6 @@ public class Assets implements Disposable, AssetErrorListener {
             int FRAME_COLS = 4;
             int FRAME_ROWS = 1;
 
-
             TextureRegion coinSheet = atlas.findRegion("coinframes");
             TextureRegion[][] tmp = coinSheet.split(Constants.COIN_SIZE, Constants.COIN_SIZE);
             TextureRegion[] coinFrames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
@@ -172,7 +184,6 @@ public class Assets implements Disposable, AssetErrorListener {
                     coinFrames[index++] = tmp[i][j];
                 }
             }
-
             coinAnimation = new Animation(.20f, coinFrames);
             coinAnimation.setPlayMode(Animation.PlayMode.LOOP);
         }
@@ -200,7 +211,9 @@ public class Assets implements Disposable, AssetErrorListener {
         public final TextureRegion topPlainsTile;
 
         public final TextureRegion fishTile;
+        public final TextureRegion menuCloudTile;
 
+        public final TextureRegion hudTextBackground;
 
         public BackGroundAssets(TextureAtlas atlas) {
             bottomDesertTile = atlas.findRegion("background/desertbottomtile");
@@ -224,14 +237,40 @@ public class Assets implements Disposable, AssetErrorListener {
             topPlainsTile = atlas.findRegion("background/plainstoptile");
 
             fishTile = atlas.findRegion("background/fishtile");
+            menuCloudTile = atlas.findRegion("background/menucloudtile");
+
+            hudTextBackground = atlas.findRegion("background/hudtextbackground");
+
         }
     }
 
     public class MenuAssets {
         public final TextureRegion selectionRectangle;
+        public final TextureRegion splashScreenLogo;
+        public final TextureRegion adLockRectangle;
+        public final TextureRegion coinLockRectangle;
+
+        public final TextureRegion startButton;
+        public final TextureRegion optionsButton;
+        public final TextureRegion leaderboardButton;
+        public final TextureRegion achievementButton;
+        public final TextureRegion exitButton;
+
+        public final TextureRegion title;
 
         public MenuAssets(TextureAtlas atlas) {
             selectionRectangle = atlas.findRegion("selectionrectangle");
+            splashScreenLogo = atlas.findRegion("myreliablegames");
+            adLockRectangle = atlas.findRegion("adlockrectangle");
+            coinLockRectangle = atlas.findRegion("coinlockrectangle");
+
+            startButton = atlas.findRegion("startbutton");
+            optionsButton = atlas.findRegion("optionsbutton");
+            leaderboardButton = atlas.findRegion("leaderboardbutton");
+            achievementButton = atlas.findRegion("achievementbutton");
+            exitButton = atlas.findRegion("exitbutton");
+
+            title = atlas.findRegion("title");
         }
     }
 
@@ -243,12 +282,18 @@ public class Assets implements Disposable, AssetErrorListener {
         public final Sound longJumpSound;
         public final Sound railContactSound;
         public final Sound transitionSound;
+        public final Sound selectSound;
+        public final Sound meow1;
+        public final Sound meow2;
+        public final Sound meow3;
+
         public final Music trainSound;
         public final Music forestMusic;
         public final Music oceanMusic;
         public final Music mountainMusic;
         public final Music plainsMusic;
         public final Music desertMusic;
+        public final Music menuMusic;
 
         public SoundAssets() {
             coinPickupSound = assetManager.get("sounds/coinpickupsound.wav");
@@ -257,28 +302,37 @@ public class Assets implements Disposable, AssetErrorListener {
             longJumpSound = assetManager.get("sounds/longjumpsound.wav");
             railContactSound = assetManager.get("sounds/railhitsound.wav");
             transitionSound = assetManager.get("sounds/transitionsound.wav");
+            selectSound = assetManager.get("sounds/selectsound.wav");
+            meow1 = assetManager.get("sounds/meow1.wav");
+            meow2 = assetManager.get("sounds/meow2.wav");
+            meow3 = assetManager.get("sounds/meow3.wav");
 
             trainSound = assetManager.get("sounds/trainsound.wav");
             trainSound.setLooping(true);
-            trainSound.setVolume(.6f);
 
             oceanMusic = assetManager.get("sounds/oceanmusic.mp3");
             oceanMusic.setLooping(true);
-            oceanMusic.setVolume(.4f);
+            oceanMusic.setVolume(.9f);
 
             forestMusic = assetManager.get("sounds/forestmusic.mp3");
             forestMusic.setLooping(true);
+            forestMusic.setVolume(.9f);
 
             desertMusic = assetManager.get("sounds/desertmusic.mp3");
             desertMusic.setLooping(true);
+            desertMusic.setVolume(.9f);
 
             plainsMusic = assetManager.get("sounds/plainsmusic.mp3");
             plainsMusic.setLooping(true);
-            plainsMusic.setVolume(.6f);
+            plainsMusic.setVolume(.9f);
 
             mountainMusic = assetManager.get("sounds/mountainmusic.mp3");
             mountainMusic.setLooping(true);
-            mountainMusic.setVolume(.5f);
+            mountainMusic.setVolume(.9f);
+
+            menuMusic = assetManager.get("sounds/menumusic.mp3");
+            menuMusic.setLooping(true);
+            menuMusic.setVolume(.9f);
 
         }
 
@@ -298,7 +352,24 @@ public class Assets implements Disposable, AssetErrorListener {
                     return oceanMusic;
             }
         }
+    }
 
+    public class TumbleAssets {
+        public final TextureRegion desertObject;
+        public final TextureRegion oceanObject;
+        public final TextureRegion forestObject;
+        public final TextureRegion mountainObject;
+        public final TextureRegion plainsObject;
+
+
+        public TumbleAssets(TextureAtlas atlas) {
+            desertObject = atlas.findRegion("desertobject");
+            oceanObject = atlas.findRegion("oceanobject");
+            forestObject = atlas.findRegion("forestobject");
+            mountainObject = atlas.findRegion("mountainobject");
+            plainsObject = atlas.findRegion("plainsobject");
+
+        }
     }
 
     @Override

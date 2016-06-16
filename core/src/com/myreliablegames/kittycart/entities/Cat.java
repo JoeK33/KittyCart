@@ -47,9 +47,7 @@ public class Cat {
                     rotationAngle);
         }
     }
-
     public void update(float delta) {
         stateTime += delta;
     }
-
 }

@@ -25,7 +25,7 @@ public class CoinHandler {
 
     public void update(float delta) {
 
-        if (coins.size < 1 && TimeUtils.nanoTime() > coinTimer + Constants.COIN_DEPLOY_INTERVAL_NANO) {
+        if (coins.size < 1 && TimeUtils.nanoTime() > coinTimer + Constants.SEVEN_SECONDS_NANO) {
             // Put a coin every other track space until there are no more to place.
             int everyOther = 0;
             int coinsToPlace = (int)((Math.random() * Constants.MAX_COINS_IN_PLAY) + 1);

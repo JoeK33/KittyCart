@@ -4,6 +4,7 @@ import com.badlogic.gdx.utils.Pool;
 
 /**
  * Created by Joe on 5/24/2016.
+ * Pools objects to prevent excessive creation and garbage collection.
  */
 public class EntityPools {
 
@@ -39,6 +40,13 @@ public class EntityPools {
         }
     };
 
+    public final Pool<TumblingObject> tumblePool = new Pool<TumblingObject>() {
+        @Override
+        protected TumblingObject newObject() {
+            return  new TumblingObject();
+        }
+    };
+
     public void free(Track track) {
         trackPool.free(track);
     }
@@ -49,5 +57,9 @@ public class EntityPools {
 
     public void free (Coin coin) {
         coinPool.free(coin);
+    }
+
+    public void free (TumblingObject tumblingObject) {
+        tumblePool.free(tumblingObject);
     }
 }

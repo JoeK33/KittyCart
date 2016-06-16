@@ -1,8 +1,9 @@
 package com.myreliablegames.kittycart;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.myreliablegames.kittycart.util.Assets;
+import com.myreliablegames.kittycart.util.Constants;
 
 import java.util.Random;
 
@@ -28,7 +29,7 @@ public enum Zone {
     }
 
     public static Zone chooseRandomZone() {
-        Random rand = new Random();
+        Random rand = new Random(TimeUtils.nanoTime());
         int choice = rand.nextInt(5);
         switch (choice) {
             case 0:
@@ -94,6 +95,40 @@ public enum Zone {
                 return Assets.getInstance().backGroundAssets.bottomPlainsTile;
             default:
                 return Assets.getInstance().backGroundAssets.bottomDesertTile;
+        }
+    }
+
+    public static TextureRegion getTumblingObject() {
+        switch (Zone.getZone()) {
+            case DESERT:
+                return Assets.getInstance().tumbleAssets.desertObject;
+            case FOREST:
+                return Assets.getInstance().tumbleAssets.forestObject;
+            case MOUNTAIN:
+                return Assets.getInstance().tumbleAssets.mountainObject;
+            case OCEAN:
+                return Assets.getInstance().tumbleAssets.oceanObject;
+            case PLAINS:
+                return Assets.getInstance().tumbleAssets.plainsObject;
+            default:
+                return Assets.getInstance().tumbleAssets.desertObject;
+        }
+    }
+
+    public static long getTumblingObjectDeployTime() {
+        switch (Zone.getZone()) {
+            case DESERT:
+                return Constants.TEN_SECONDS_NANO;
+            case FOREST:
+                return Constants.ONE_AND_A_HALF_SECONDS_NANO;
+            case MOUNTAIN:
+                return Constants.TEN_SECONDS_NANO;
+            case OCEAN:
+                return Constants.TWENTY_SECONDS_NANO;
+            case PLAINS:
+                return Constants.TWENTY_SECONDS_NANO;
+            default:
+                return Constants.TEN_SECONDS_NANO;
         }
     }
 }

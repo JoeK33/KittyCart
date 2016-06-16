@@ -30,7 +30,7 @@ public class SparkEmitter {
 
             if (!spark.inBounds()) {
                 sparks.removeValue(spark, true);
-                EntityPools.getInstance().sparkPool.free(spark);
+                EntityPools.getInstance().free(spark);
             }
         }
         sparks.end();

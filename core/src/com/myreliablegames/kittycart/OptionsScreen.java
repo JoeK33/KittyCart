@@ -4,20 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.myreliablegames.kittycart.util.Assets;
@@ -26,7 +20,7 @@ import com.myreliablegames.kittycart.util.Constants;
 /**
  * Created by Joe on 5/26/2016.
  */
-public class CustomizeScreen extends ScreenAdapter {
+public class OptionsScreen extends ScreenAdapter {
 
     private KittyCartGame kittyCartGame;
     private Viewport viewport;
@@ -36,17 +30,16 @@ public class CustomizeScreen extends ScreenAdapter {
     private Stage stage;
     private Table table;
     private BitmapFont font;
-    private MenuBackground background;
-    private CustomizeButtons customizeButtons;
-    private CustomizeScreenHUD customizeScreenHUD;
+    private OptionsBackground background;
+    private OptionsButtons customizeButtons;
+    private OptionsScreenHUD customizeScreenHUD;
+    private ActionResolver resolver;
 
-
-    public CustomizeScreen(KittyCartGame game) {
-
-        Assets.getInstance();
-        background = new MenuBackground();
-        viewport = new ExtendViewport(Constants.WORLD_WIDTH, Constants.WORLD_HEIGHT);
+    public OptionsScreen(KittyCartGame game, ActionResolver resolver) {
+        background = new OptionsBackground();
+        viewport = new ExtendViewport((Constants.WORLD_WIDTH / 4) * 3, (Constants.WORLD_HEIGHT / 4) * 3);
         camera = new OrthographicCamera(Constants.WORLD_WIDTH / 2, Constants.WORLD_HEIGHT / 2);
+        camera.position.set(Constants.WORLD_WIDTH / 2, Constants.WORLD_HEIGHT / 2, 0);
         viewport.setCamera(camera);
         batch = new SpriteBatch();
         skin = new Skin();
@@ -57,11 +50,12 @@ public class CustomizeScreen extends ScreenAdapter {
         table = new Table(skin);
         table.defaults().width(Constants.TABLE_CELL_WIDTH).height(Constants.TABLE_CELL_HEIGHT).pad(10).expandX();
         this.kittyCartGame = game;
+        this.resolver = resolver;
 
-        customizeButtons = new CustomizeButtons(table, skin, font);
+        customizeButtons = new OptionsButtons(table, skin, font, resolver);
 
         stage.addActor(table);
-        customizeScreenHUD = new CustomizeScreenHUD(camera, font);
+        customizeScreenHUD = new OptionsScreenHUD(camera, font);
 
     }
 
@@ -81,13 +75,9 @@ public class CustomizeScreen extends ScreenAdapter {
         // Light blue
         Gdx.gl.glClearColor(.56f, .76f, .83f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         batch.begin();
         background.render(batch);
-
-
-        table.draw(batch, 1);
-
-
         batch.end();
 
         stage.act(delta);
@@ -102,7 +92,7 @@ public class CustomizeScreen extends ScreenAdapter {
 
         // Exit on back press
         if (Gdx.input.isKeyPressed(Input.Keys.BACK)) {
-            kittyCartGame.setScreen(new MenuScreen(kittyCartGame));
+            kittyCartGame.setScreen(new MenuScreen(kittyCartGame, resolver));
         }
     }
 
@@ -110,6 +100,5 @@ public class CustomizeScreen extends ScreenAdapter {
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
     }
-
 
 }

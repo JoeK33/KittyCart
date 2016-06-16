@@ -97,16 +97,19 @@ public class PlayerPreferences {
         Preferences prefs = Gdx.app.getPreferences("My Preferences");
         coasterModeOn = !coasterModeOn;
         prefs.putBoolean("coasterModeOn", coasterModeOn);
+        prefs.flush();
     }
 
     public static void setCart(Cart newCart) {
         cart = newCart;
         prefs.putInteger("cart", Cart.getValue(cart));
+        prefs.flush();
     }
 
     public static void setCat(Cat newCat) {
         cat = newCat;
         prefs.putInteger("cat", Cat.getValue(cat));
+        prefs.flush();
     }
 
     public static Cart getCart() {

@@ -27,7 +27,8 @@ public class Controller implements InputProcessor {
 
     @Override
     public boolean keyUp(int keycode) {
-        if (keycode == Input.Keys.SPACE) {
+
+    /*    if (keycode == Input.Keys.SPACE) {
             mineCart.jump();
         } else if (keycode == Input.Keys.L) {
             mineCart.longLump();
@@ -35,7 +36,9 @@ public class Controller implements InputProcessor {
             level.pauseToggle();
         } else if (keycode == Input.Keys.C) {
             Zone.changeZone();
-        } else if (keycode == Input.Keys.BACK) {
+        } else */
+
+        if (keycode == Input.Keys.BACK) {
             if (level.isPaused()) {
                 level.goToMenu();
             } else {

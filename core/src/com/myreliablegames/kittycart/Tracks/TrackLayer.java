@@ -24,8 +24,10 @@ public class TrackLayer {
     private int tracksInZone;
     private int supportsHigh;
     private final int SUPPORT_HEIGHT;
+    private boolean onMenu;
 
-    public TrackLayer() {
+    public TrackLayer(boolean onMenu) {
+        this.onMenu = onMenu;
         factory = new TrackSectionFactory();
         tracksInPlay = new DelayedRemovalArray<Track>();
         tracksInPlay.addAll(factory.makeStraightSection(new Vector2(0, Constants.WORLD_HEIGHT / 6)).getTracks());
@@ -33,9 +35,7 @@ public class TrackLayer {
         tracksTraveled = 0;
         tracksInZone = 0;
         SUPPORT_HEIGHT = Assets.getInstance().trackAssets.supports.getRegionHeight();
-
         supportsHigh = (int) (Constants.WORLD_HEIGHT / SUPPORT_HEIGHT) * 2;
-
     }
 
     public void update(float delta) {
@@ -49,17 +49,20 @@ public class TrackLayer {
             Vector2 trackAddPosition = new Vector2(lastTrack.getPosition());
             trackAddPosition.x += Constants.TRACK_WIDTH;
 
-            if (tracksInZone > Constants.TRACKS_PER_ZONE) {
-                tracksInPlay.addAll(factory.makeTransitionSection(trackAddPosition).getTracks()) ;
-                tracksInZone = 0;
-                } else{
+            if (onMenu) {
+                tracksInPlay.addAll(factory.makeRandomConnectedSection(trackAddPosition).getTracks());
+            } else {
+                if (tracksInZone > Constants.TRACKS_PER_ZONE) {
+                    tracksInPlay.addAll(factory.makeTransitionSection(trackAddPosition).getTracks());
+                    tracksInZone = 0;
+                } else {
                     tracksInPlay.addAll(factory.makeCorrespondingSection(Zone.getZone(), trackAddPosition).getTracks());
                 }
+            }
         }
 
         for (Track track : tracksInPlay) {
             track.update(delta);
-
             // Remove tracks that have passed out of play.
             if (track.movedOutOfBounds()) {
                 tracksInPlay.removeValue(track, true);
@@ -69,7 +72,6 @@ public class TrackLayer {
             }
         }
         tracksInPlay.end();
-
     }
 
     public void transition() {
@@ -81,7 +83,6 @@ public class TrackLayer {
                 tracksInPlay.removeValue(track, true);
                 EntityPools.getInstance().trackPool.free(track);
             }
-
         }
         tracksInPlay.end();
     }
@@ -112,7 +113,6 @@ public class TrackLayer {
             }
         }
     }
-
 
     public void resetDistance() {
         tracksTraveled = 0;

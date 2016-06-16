@@ -1,6 +1,5 @@
 package com.myreliablegames.kittycart.entities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -16,11 +15,12 @@ import com.myreliablegames.kittycart.util.Constants;
 
 /**
  * Created by Joe on 5/17/2016.
+ * The minecart aka the player.
  */
 public class MineCart {
 
     private static final String TAG = "MineCart";
-    // Position of minecart is the front corner of texture.
+    // Position of minecart is the bottom right corner of texture.
     private Vector2 position;
     private Vector2 prevPosition;
     private Vector2 velocity;
@@ -53,8 +53,6 @@ public class MineCart {
         bobOffset = 0;
         rotationAngle = 0;
         cat = new Cat();
-        Assets.getInstance().soundAssets.trainSound.play();
-
     }
 
     public void render(SpriteBatch batch) {
@@ -150,7 +148,7 @@ public class MineCart {
         // Reset if falling off.
         if (position.y < 0) {
             Assets.getInstance().soundAssets.gameOverSound.play();
-            position.y = Constants.WORLD_HEIGHT;
+            position.y = Constants.WORLD_HEIGHT + (Constants.BACKGROUND_TILE_SIZE / 2);
             level.reset();
             velocity.y = 0;
         }
@@ -223,7 +221,7 @@ public class MineCart {
     }
 
     private void handleMusic() {
-        if (jumpState == JumpState.GROUNDED) {
+        if (jumpState == JumpState.GROUNDED && !level.isPaused()) {
             if (!Assets.getInstance().soundAssets.trainSound.isPlaying()) {
                 Assets.getInstance().soundAssets.trainSound.play();
             }
@@ -231,16 +229,15 @@ public class MineCart {
             if (Assets.getInstance().soundAssets.trainSound.isPlaying()) {
                 Assets.getInstance().soundAssets.trainSound.pause();
             }
-
         }
     }
 
     public void pause() {
-        Assets.getInstance().soundAssets.trainSound.pause();
+            Assets.getInstance().soundAssets.trainSound.pause();
     }
 
     public void unPause() {
-        Assets.getInstance().soundAssets.trainSound.play();
+            Assets.getInstance().soundAssets.trainSound.play();
     }
 
     private void updateRotationAngle(float delta) {
@@ -252,7 +249,7 @@ public class MineCart {
         } else if (moveState == MoveState.LEVEL && jumpState == JumpState.GROUNDED) {
             if (rotationAngle > 1) {
                 rotationAngle -= ROTATION_SPEED * delta;
-            } else if ( rotationAngle < -1) {
+            } else if (rotationAngle < -1) {
                 rotationAngle += ROTATION_SPEED * delta;
             }
         }
@@ -268,7 +265,7 @@ public class MineCart {
     private Rectangle getWheelBoundingRectangle() {
 
         // Hit detection only works around the minecart wheels.
-        return new Rectangle(position.x - Constants.MINECART_WIDTH + Constants.MINECART_EDGE_TO_WHEEL_SIZE , position.y, Constants.MINECART_WIDTH - ( 2 * Constants.MINECART_EDGE_TO_WHEEL_SIZE), Constants.MINECART_WHEEL_HEIGHT);
+        return new Rectangle(position.x - Constants.MINECART_WIDTH + Constants.MINECART_EDGE_TO_WHEEL_SIZE, position.y, Constants.MINECART_WIDTH - (2 * Constants.MINECART_EDGE_TO_WHEEL_SIZE), Constants.MINECART_WHEEL_HEIGHT);
     }
 
     private Rectangle getMineCartBoundingRectangle() {
@@ -333,14 +330,14 @@ public class MineCart {
     private void continueJump() {
         if (jumpState == JumpState.JUMPING) {
             if (TimeUtils.timeSinceNanos(jumpStartTime) * MathUtils.nanoToSec < Constants.JUMP_DURATION) {
-              //  velocity.y = Constants.JUMP_SPEED;
+                //  velocity.y = Constants.JUMP_SPEED;
                 //    Gdx.app.log(TAG, "Jumping!");
             } else {
                 endJump();
             }
         } else if (jumpState == JumpState.LONG_JUMPING) {
             if (TimeUtils.timeSinceNanos(jumpStartTime) * MathUtils.nanoToSec < Constants.JUMP_DURATION) {
-              //  velocity.y = Constants.JUMP_SPEED * 1.5f;
+                //  velocity.y = Constants.JUMP_SPEED * 1.5f;
                 //    Gdx.app.log(TAG, "Long Jumping!");
             } else {
                 endJump();

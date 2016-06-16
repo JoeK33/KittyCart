@@ -9,6 +9,7 @@ import com.myreliablegames.kittycart.util.Constants;
 
 /**
  * Created by Joe on 5/19/2016.
+ * Collectible gold coin.
  */
 public class Coin implements Pool.Poolable {
     private Vector2 position;

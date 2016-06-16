@@ -11,12 +11,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by Joe on 5/19/2016.
+ * Sparks that fly off the back wheel of the cart.
  */
 public class Spark implements Pool.Poolable {
 
     private Vector2 position;
     private Vector2 velocity;
-    private final float REMOVAL_BUFFER = 10;
+    private final float REMOVAL_BUFFER = Constants.BACKGROUND_TILE_SIZE;
 
     public Spark() {
         position = new Vector2();

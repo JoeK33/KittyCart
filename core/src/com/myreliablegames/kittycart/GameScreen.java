@@ -1,12 +1,9 @@
 package com.myreliablegames.kittycart;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
-import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.myreliablegames.kittycart.util.Assets;
 
 /**
@@ -16,22 +13,25 @@ public class GameScreen extends ScreenAdapter {
 
     private SpriteBatch batch;
     private Level level;
-    private FPSLogger logger;
     private KittyCartGame game;
-    private long pauseBuffer;
-    private long lastPause;
+    private ActionResolver resolver;
 
-    public GameScreen(KittyCartGame game) {
+    public GameScreen(KittyCartGame game, ActionResolver resolver) {
         this.game = game;
-        pauseBuffer = TimeUtils.millisToNanos(300);
-        lastPause = TimeUtils.nanoTime();
+        this.resolver = resolver;
     }
 
     @Override
     public void show() {
         batch = new SpriteBatch();
-        level = new Level(this);
-        logger = new FPSLogger();
+        level = new Level(this, resolver);
+    }
+
+    @Override
+    public void pause() {
+       if (!level.isPaused()) {
+           level.pauseToggle();
+       }
     }
 
     @Override
@@ -42,7 +42,7 @@ public class GameScreen extends ScreenAdapter {
     }
 
     public void goToMenuScreen() {
-        game.setScreen(new MenuScreen(game));
+        game.openMainMenu();
     }
 
     @Override
@@ -53,7 +53,6 @@ public class GameScreen extends ScreenAdapter {
 
         level.update(delta);
         level.render(batch);
-        logger.log();
 
     }
 
